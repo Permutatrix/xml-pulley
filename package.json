@@ -5,7 +5,7 @@
   "main": "lib/xml-pulley.js",
   "jsnext:main": "src/xml-pulley.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "prepublish": "gulp"
   },
   "repository": {
@@ -25,7 +25,9 @@
     "sax": "^1.1.3"
   },
   "devDependencies": {
+    "chai": "^3.3.0",
     "gulp": "^3.9.0",
-    "gulp-babel": "^5.2.1"
+    "gulp-babel": "^5.2.1",
+    "mocha": "^2.3.3"
   }
 }

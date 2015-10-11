@@ -29,3 +29,7 @@ node_modules
 # Files for building
 # src is not excluded in case people want to use jsnext:main
 gulpfile.js
+
+# Files for testing
+# It's not like you'll be able to run the tests without the devDependencies installed.
+test

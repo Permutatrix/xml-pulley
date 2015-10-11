@@ -17,30 +17,30 @@ class XMLPulley {
     let types = options.types || ['opentag', 'closetag', 'text'];
     let queue = this.queue = new Queue();
     let parser = this.parser = saxParser(strict, options);
-    let text = null;
-    function flushText() {
-      if(text) {
-        queue.enqueue({type: 'text', data: text});
-        text = null;
-      }
-    }
+    this.text = null;
     parser.onerror = (err) => {
       throw err;
     };
     types.forEach((type) => {
       if(type === 'text') {
         parser.ontext = parser.oncdata = (t) => {
-          text = text ? text + t : t;
+          this.text = this.text ? this.text + t : t;
         };
       } else if(isAllowedType(type)) {
         parser['on'+type] = (data) => {
-          flushText();
+          this._flushText();
           queue.enqueue({type: type, data: data});
         }
       } else {
         throw new Error(`${type} isn't an allowed type!`);
       }
     });
+  }
+  _flushText() {
+    if(this.text) {
+      this.queue.enqueue({type: 'text', data: this.text});
+      this.text = null;
+    }
   }
   write(xml) {
     if(this.parser)
@@ -53,6 +53,7 @@ class XMLPulley {
     if(this.parser) {
       this.parser.close();
       this.parser = null;
+      this._flushText();
     }
     return this;
   }
