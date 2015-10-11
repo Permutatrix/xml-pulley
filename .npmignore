@@ -33,3 +33,6 @@ gulpfile.js
 # Files for testing
 # It's not like you'll be able to run the tests without the devDependencies installed.
 test
+
+# I'm not supposed to publish .travis.yml, right?
+.travis.yml

@@ -1,0 +1,10 @@
+language: node_js
+node_js: # support everything sax-js supports
+  - '0.8'
+  - '0.10'
+  - '0.12'
+  - '4'
+  - 'stable' # and also stable
+before_script:
+  - npm install -g gulp
+script: gulp && npm test
