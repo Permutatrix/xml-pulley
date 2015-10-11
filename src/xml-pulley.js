@@ -12,11 +12,16 @@ function isAllowedType(type) {
 }
 
 class XMLPulley {
-  constructor(xml, strict, options) {
-    this.options = options = options || {};
+  constructor(xml, options) {
+    if(!options) options = {};
     let types = options.types || ['opentag', 'closetag', 'text'];
     let queue = this.queue = new Queue();
-    let parser = saxParser(strict, options);
+    let parser = saxParser(true, {
+      trim: options.trim,
+      normalize: options.normalize,
+      xmlns: options.xmlns,
+      position: false
+    });
     let text = null;
     let flushText = () => {
       if(text) {
@@ -62,6 +67,6 @@ class XMLPulley {
   }
 }
 
-export function xmlPulley(xml, strict, options) {
-  return new XMLPulley(xml, strict, options);
+export function xmlPulley(xml, options) {
+  return new XMLPulley(xml, options);
 }
