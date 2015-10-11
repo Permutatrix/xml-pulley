@@ -75,6 +75,6 @@ class XMLPulley {
   }
 }
 
-export default function xmlPulley(strict, options) {
+export function xmlPulley(strict, options) {
   return new XMLPulley(strict, options);
 }
