@@ -1,6 +1,6 @@
 language: node_js
-node_js: # support everything sax-js supports
-  - '0.8'
+node_js:
+  # chai and gulp don't support node 0.8... they're only devDependencies...
   - '0.10'
   - '0.12'
   - '4'
