@@ -12,50 +12,37 @@ function isAllowedType(type) {
 }
 
 class XMLPulley {
-  constructor(strict, options) {
+  constructor(xml, strict, options) {
     this.options = options = options || {};
     let types = options.types || ['opentag', 'closetag', 'text'];
     let queue = this.queue = new Queue();
-    let parser = this.parser = saxParser(strict, options);
-    this.text = null;
+    let parser = saxParser(strict, options);
+    let text = null;
+    let flushText = () => {
+      if(text) {
+        this.queue.enqueue({type: 'text', data: text});
+        text = null;
+      }
+    };
     parser.onerror = (err) => {
       throw err;
     };
     types.forEach((type) => {
       if(type === 'text') {
         parser.ontext = parser.oncdata = (t) => {
-          this.text = this.text ? this.text + t : t;
+          text = text ? text + t : t;
         };
       } else if(isAllowedType(type)) {
         parser['on'+type] = (data) => {
-          this._flushText();
+          flushText();
           queue.enqueue({type: type, data: data});
         }
       } else {
         throw new Error(`${type} isn't an allowed type!`);
       }
     });
-  }
-  _flushText() {
-    if(this.text) {
-      this.queue.enqueue({type: 'text', data: this.text});
-      this.text = null;
-    }
-  }
-  write(xml) {
-    if(this.parser)
-      this.parser.write(xml);
-    else
-      throw new Error("Can't write to a closed XMLPulley!");
-    return this;
-  }
-  close() {
-    if(this.parser) {
-      this.parser.close();
-      this.parser = null;
-      this._flushText();
-    }
-    return this;
+    parser.write(xml).close();
+    flushText();
   }
   next() {
     return this.queue.dequeue();
@@ -75,6 +62,6 @@ class XMLPulley {
   }
 }
 
-export function xmlPulley(strict, options) {
-  return new XMLPulley(strict, options);
+export function xmlPulley(xml, strict, options) {
+  return new XMLPulley(xml, strict, options);
 }
