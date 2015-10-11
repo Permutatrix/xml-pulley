@@ -5,7 +5,8 @@
   "main": "lib/xml-pulley.js",
   "jsnext:main": "src/xml-pulley.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "gulp"
   },
   "repository": {
     "type": "git",
@@ -14,7 +15,7 @@
   "keywords": [
     "xml"
   ],
-  "author": "Permutator",
+  "author": "Permutator <permutatorem@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/permutatrix/xml-pulley/issues"

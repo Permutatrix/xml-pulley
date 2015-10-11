@@ -3,6 +3,6 @@ var babel = require('gulp-babel');
 
 gulp.task('default', function() {
   return gulp.src('src/**/*.js')
-  .pipe(babel())
+  .pipe(babel({loose: 'all'}))
   .pipe(gulp.dest('lib'));
 });
