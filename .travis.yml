@@ -4,7 +4,6 @@ node_js:
   - '0.10'
   - '0.12'
   - '4'
-  - 'stable' # and also stable
 before_script:
   - npm install -g gulp
 script: gulp && npm test
