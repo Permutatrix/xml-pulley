@@ -48,11 +48,10 @@ describe("XMLPulley", function() {
   
   describe("next()", function() {
     it("should return undefined when there's no more data", function() {
-      var pulley = xmlPulley(true).write('<root />').close();
-      pulley.expect('opentag');
-      pulley.expect('closetag');
+      var pulley = xmlPulley(true).close();
       expect(pulley.next()).to.be.undefined;
     });
+    
     it("should probably work, that might be important down the line", function() {
       var pulley = xmlPulley(true).write('<root>A <tag attr="value">tag. <tag>And another.</tag></tag> Nice.</root>').close();
       expect(pulley.expect('opentag')).to.have.deep.property('data.name', 'root');
@@ -71,6 +70,24 @@ describe("XMLPulley", function() {
     });
   });
   
+  describe("peek()", function() {
+    it("should return undefined when there's no more data", function() {
+      var pulley = xmlPulley(true).close();
+      expect(pulley.peek()).to.be.undefined;
+    });
+    
+    it("should return the same as next()", function() {
+      var pulley1 = xmlPulley(true).write('<root attr="val" />').close();
+      var pulley2 = xmlPulley(true).write('<root attr="val" />').close();
+      expect(pulley1.peek()).to.deep.equal(pulley2.next());
+    });
+    
+    it("should return the same value on consecutive calls", function() {
+      var pulley = xmlPulley(true).write('<root />').close();
+      expect(pulley.peek()).to.equal(pulley.peek());
+    });
+  });
+  
   describe("expect()", function() {
     it("should throw when the next node isn't of the specified type", function() {
       var pulley = xmlPulley(true).write('<root />').close();
@@ -85,9 +102,23 @@ describe("XMLPulley", function() {
     });
     
     it("should behave like next() when the next node is of the specified type", function() {
-      var pulley1 = xmlPulley(true).write('<root />').close();
-      var pulley2 = xmlPulley(true).write('<root />').close();
+      var pulley1 = xmlPulley(true).write('<root attr="val" />').close();
+      var pulley2 = xmlPulley(true).write('<root attr="val" />').close();
       expect(pulley1.expect('opentag')).to.deep.equal(pulley2.next());
+    });
+    
+    it("should move up the queue on success", function() {
+      var pulley = xmlPulley(true).write('<root />').close();
+      expect(function() {
+        pulley.expect('opentag');
+        pulley.expect('closetag');
+      }).to.not.throw();
+    });
+    
+    it("should leave the queue untouched on failure", function() {
+      var pulley = xmlPulley(true).write('<root />').close();
+      expect(function() { pulley.expect('closetag'); }).to.throw();
+      expect(function() { pulley.expect('opentag'); }).to.not.throw();
     });
   });
 });
