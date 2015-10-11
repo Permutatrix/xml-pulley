@@ -22,6 +22,7 @@ class XMLPulley {
       xmlns: options.xmlns,
       position: false
     });
+    let skipWS = options.skipWhitespaceOnly;
     let text = null;
     let flushText = () => {
       if(text) {
@@ -35,7 +36,8 @@ class XMLPulley {
     types.forEach((type) => {
       if(type === 'text') {
         parser.ontext = parser.oncdata = (t) => {
-          text = text ? text + t : t;
+          if(!skipWS || /\S/.test(t))
+            text = text ? text + t : t;
         };
       } else if(isAllowedType(type)) {
         parser['on'+type] = (data) => {

@@ -116,7 +116,7 @@ describe("Behavior", function() {
       expect(pulley.expect('text')).to.equal('   This part of XML is super annoying.\n');
     });
     
-    it("should ignore whitespace-only nodes when given options.trim", function() {
+    it("should skip whitespace-only nodes when given options.trim", function() {
       var pulley = xmlPulley('<root>\n</root>', {trim: true});
       pulley.expect('opentag');
       pulley.expect('closetag');
@@ -126,6 +126,26 @@ describe("Behavior", function() {
       var pulley = xmlPulley('<root><![CDATA[   ]]></root>', {trim: true});
       pulley.expect('opentag');
       expect(pulley.expect('text')).to.equal('   ');
+    });
+  });
+  
+  describe("Skipping whitespace-only nodes", function() {
+    it("should skip whitespace-only nodes when given options.skipWhitespaceOnly", function() {
+      var pulley = xmlPulley('<root>\n</root>', {skipWhitespaceOnly: true});
+      pulley.expect('opentag');
+      pulley.expect('closetag');
+    });
+    
+    it("should not skip whitespace-only nodes by default", function() {
+      var pulley = xmlPulley('<root>\n</root>');
+      pulley.expect('opentag');
+      expect(pulley.expect('text')).to.equal('\n');
+    });
+    
+    it("should not skip non-whitespace text nodes", function() {
+      var pulley = xmlPulley('<root>  Text  </root>', {skipWhitespaceOnly: true});
+      pulley.expect('opentag');
+      expect(pulley.expect('text')).to.equal('  Text  ');
     });
   });
   
