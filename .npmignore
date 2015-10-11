@@ -26,5 +26,6 @@ build/Release
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 
-# Transpiled output
-lib
+# Files for building
+# src is not excluded in case people want to use jsnext:main
+gulpfile.js
