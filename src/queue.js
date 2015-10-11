@@ -18,4 +18,10 @@ export default class Queue {
     }
     return out;
   }
+  peek() {
+    if(this.offset >= this.items.length) {
+      return;
+    }
+    return this.items[this.offset];
+  }
 }

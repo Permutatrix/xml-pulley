@@ -60,13 +60,17 @@ class XMLPulley {
   next() {
     return this.queue.dequeue();
   }
+  peek() {
+    return this.queue.peek();
+  }
   expect(type) {
-    let out = this.next();
+    let out = this.peek();
     if(out === undefined) {
       throw new Error(`Expected ${type}; got end of file!`);
     } else if(out.type !== type) {
       throw new Error(`Expected ${type}; got ${out.type}!`);
     }
+    this.next();
     return out;
   }
 }
