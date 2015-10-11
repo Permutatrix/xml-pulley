@@ -71,7 +71,7 @@ class XMLPulley {
       throw new Error(`Expected ${type}; got ${out.type}!`);
     }
     this.next();
-    return out;
+    return out.data;
   }
 }
 

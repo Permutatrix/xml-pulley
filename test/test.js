@@ -12,7 +12,7 @@ describe("xmlPulley()", function() {
   
   it("should pass options on to sax.parser", function() {
     var pulley = xmlPulley(false, {lowercase: true}).write('<ROOT />').close();
-    expect(pulley.expect('opentag')).to.have.deep.property('data.name', 'root');
+    expect(pulley.expect('opentag')).to.have.property('name', 'root');
   });
 });
 
@@ -37,7 +37,7 @@ describe("XMLPulley", function() {
   describe("close()", function() {
     it("should flush remaining text", function() {
       var pulley = xmlPulley(false).write('Not actually valid XML').close();
-      expect(pulley.expect('text')).to.have.property('data', 'Not actually valid XML');
+      expect(pulley.expect('text')).to.equal('Not actually valid XML');
     });
     
     it("should return itself for chaining", function() {
@@ -54,18 +54,18 @@ describe("XMLPulley", function() {
     
     it("should probably work, that might be important down the line", function() {
       var pulley = xmlPulley(true).write('<root>A <tag attr="value">tag. <tag>And another.</tag></tag> Nice.</root>').close();
-      expect(pulley.expect('opentag')).to.have.deep.property('data.name', 'root');
-      expect(pulley.expect('text')).to.have.property('data', 'A ');
+      expect(pulley.expect('opentag')).to.have.property('name', 'root');
+      expect(pulley.expect('text')).to.equal('A ');
       var tag = pulley.expect('opentag');
-      expect(tag).to.have.deep.property('data.name', 'tag');
-      expect(tag).to.have.deep.property('data.attributes.attr', 'value');
-      expect(pulley.expect('text')).to.have.property('data', 'tag. ');
-      expect(pulley.expect('opentag')).to.have.deep.property('data.name', 'tag');
-      expect(pulley.expect('text')).to.have.property('data', 'And another.');
-      expect(pulley.expect('closetag')).to.have.property('data', 'tag');
-      expect(pulley.expect('closetag')).to.have.property('data', 'tag');
-      expect(pulley.expect('text')).to.have.property('data', ' Nice.');
-      expect(pulley.expect('closetag')).to.have.property('data', 'root');
+      expect(tag).to.have.property('name', 'tag');
+      expect(tag).to.have.deep.property('attributes.attr', 'value');
+      expect(pulley.expect('text')).to.equal('tag. ');
+      expect(pulley.expect('opentag')).to.have.property('name', 'tag');
+      expect(pulley.expect('text')).to.equal('And another.');
+      expect(pulley.expect('closetag')).to.equal('tag');
+      expect(pulley.expect('closetag')).to.equal('tag');
+      expect(pulley.expect('text')).to.equal(' Nice.');
+      expect(pulley.expect('closetag')).to.equal('root');
       expect(pulley.next()).to.be.undefined;
     });
   });
@@ -101,10 +101,10 @@ describe("XMLPulley", function() {
       expect(function() { pulley.expect('text'); }).to.throw();
     });
     
-    it("should behave like next() when the next node is of the specified type", function() {
+    it("should behave like next().data on success", function() {
       var pulley1 = xmlPulley(true).write('<root attr="val" />').close();
       var pulley2 = xmlPulley(true).write('<root attr="val" />').close();
-      expect(pulley1.expect('opentag')).to.deep.equal(pulley2.next());
+      expect(pulley1.expect('opentag')).to.deep.equal(pulley2.next().data);
     });
     
     it("should move up the queue on success", function() {
@@ -128,18 +128,18 @@ describe("Behavior", function() {
     it("should collapse text and CDATA into a single text node", function() {
       var pulley = xmlPulley(true).write('<mlp>Pinkie Pie<![CDATA[ > oth]]>er ponies</mlp>').close();
       pulley.expect('opentag');
-      expect(pulley.expect('text')).to.have.property('data', 'Pinkie Pie > other ponies');
+      expect(pulley.expect('text')).to.equal('Pinkie Pie > other ponies');
     });
     
     it("should collapse chunked CDATA into a single text node", function() {
       var pulley = xmlPulley(true).write('<hs><![CDATA[Equius <').write('> Nepeta]]></hs>').close();
       pulley.expect('opentag');
-      expect(pulley.expect('text')).to.have.property('data', 'Equius <> Nepeta');
+      expect(pulley.expect('text')).to.equal('Equius <> Nepeta');
     });
     
     it("should collapse text and CDATA across boundaries of unmatched types", function() {
       var pulley = xmlPulley(true, {types: ['text']}).write('<dhsb><bad-horse>Bad Horse,</bad-horse> Bad Horse!</dhsb>').close();
-      expect(pulley.expect('text')).to.have.property('data', 'Bad Horse, Bad Horse!');
+      expect(pulley.expect('text')).to.equal('Bad Horse, Bad Horse!');
     });
   });
 });
