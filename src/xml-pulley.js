@@ -1,9 +1,20 @@
 import { parser as saxParser } from 'sax';
 import Queue from './queue.js';
 
+function isAllowedType(type) {
+  switch(type) {
+    case 'text': case 'opentag': case 'closetag': case 'doctype':
+    case 'processinginstruction': case 'attribute': case 'comment':
+    case 'opencdata': case 'closecdata': case 'opennamespace':
+    case 'closenamespace': return true;
+    default: return false;
+  }
+}
+
 class XMLPulley {
   constructor(strict, options) {
-    this.options = options;
+    this.options = options = options || {};
+    let types = options.types || ['opentag', 'closetag', 'text'];
     let queue = this.queue = new Queue();
     let parser = this.parser = saxParser(strict, options);
     let text = null;
@@ -16,17 +27,20 @@ class XMLPulley {
     parser.onerror = (err) => {
       throw err;
     };
-    parser.ontext = parser.oncdata = (t) => {
-      text = text ? text + t : t;
-    };
-    parser.onopentag = (tag) => {
-      flushText();
-      queue.enqueue({type: 'opentag', data: tag});
-    };
-    parser.onclosetag = (tag) => {
-      flushText();
-      queue.enqueue({type: 'closetag', data: tag});
-    };
+    types.forEach((type) => {
+      if(type === 'text') {
+        parser.ontext = parser.oncdata = (t) => {
+          text = text ? text + t : t;
+        };
+      } else if(isAllowedType(type)) {
+        parser['on'+type] = (data) => {
+          flushText();
+          queue.enqueue({type: type, data: data});
+        }
+      } else {
+        throw new Error(`${type} isn't an allowed type!`);
+      }
+    });
   }
   write(xml) {
     if(this.parser)
