@@ -108,13 +108,27 @@ class XMLPulley {
     this.next();
     return out;
   }
-  forEach(callback, tagName) {
+  nextAll(callback, tagName) {
     var node;
-    while((node = this.next()).type !== 'closetag') {
-      callback(node, this);
+    while((node = this.peek()).type !== 'closetag') {
+      if(callback(node, this))
+        break;
+      this.next();
     }
     if(tagName)
-      assertName(node, tagName);
+      assertName(this.next(), tagName);
+  }
+  expectAll(callback, type, tagName) {
+    var node;
+    while((node = this.peek()).type !== 'closetag') {
+      if(node.type !== type)
+        throw new Error(`Expected ${type}; got ${node.type}!`);
+      if(callback(node, this))
+        break;
+      this.next();
+    }
+    if(tagName)
+      assertName(this.next(), tagName);
   }
 }
 
