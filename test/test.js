@@ -169,6 +169,26 @@ describe("Behavior", function() {
     });
   });
   
+  describe("rawText", function() {
+    it("should provide unmodified raw text when trimming and normalizing", function() {
+      var pulley = xmlPulley('<root>\n  Writing   tests   is boring.\n</root>', {trim: true, normalize: true});
+      pulley.expect('opentag');
+      expect(pulley.expect('text')).to.have.property('rawText', '\n  Writing   tests   is boring.\n');
+    });
+    
+    it("should be equal to text when trimming and normalizing are disabled", function() {
+      var pulley = xmlPulley('<root>\n  Writing   tests   is still boring.\n</root>');
+      pulley.expect('opentag');
+      var text = pulley.expect('text');
+      expect(text.text).to.equal(text.rawText);
+    });
+    
+    it("should apply to comments, as well", function() {
+      var pulley = xmlPulley('<!--\n  This is\n  a comment.\n-->', {trim: true, normalize: true, types: ['comment']});
+      expect(pulley.expect('comment')).to.have.property('rawText', '\n  This is\n  a comment.\n');
+    });
+  });
+  
   describe("Namespaces", function() {
     it("should provide namespace info when given options.xmlns", function() {
       var pulley = xmlPulley('<svg xmlns="http://www.w3.org/2000/svg"></svg>', {xmlns: true});

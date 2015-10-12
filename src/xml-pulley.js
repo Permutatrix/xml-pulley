@@ -60,7 +60,7 @@ class XMLPulley {
           } else {
             text = rawText = t;
           }
-        }
+        };
       } else if(type === 'comment' && (trim || normalize)) {
         parser.oncomment = (t) => {
           flushText();
