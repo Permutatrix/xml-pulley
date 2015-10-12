@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-var xmlPulley = require('../lib/xml-pulley.js').xmlPulley;
+var xmlPulley = require('../lib/xml-pulley.js').pulley;
 
 describe("xmlPulley()", function() {
   it("should throw when passed an invalid type", function() {

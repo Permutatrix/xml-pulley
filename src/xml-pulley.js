@@ -11,7 +11,7 @@ function isAllowedType(type) {
   }
 }
 
-class XMLPulley {
+class Pulley {
   constructor(xml, options) {
     if(!options) options = {};
     let types = options.types || ['opentag', 'closetag', 'text'];
@@ -99,6 +99,6 @@ class XMLPulley {
   }
 }
 
-export function xmlPulley(xml, options) {
-  return new XMLPulley(xml, options);
+export function pulley(xml, options) {
+  return new Pulley(xml, options);
 }
