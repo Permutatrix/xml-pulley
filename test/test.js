@@ -32,10 +32,10 @@ describe("XMLPulley", function() {
       expect(pulley.expect('text')).to.have.property('text', 'tag. ');
       expect(pulley.expect('opentag')).to.have.property('name', 'tag');
       expect(pulley.expect('text')).to.have.property('text', 'And another.');
-      expect(pulley.expect('closetag')).to.equal('tag');
-      expect(pulley.expect('closetag')).to.equal('tag');
+      expect(pulley.expect('closetag')).to.have.property('name', 'tag');
+      expect(pulley.expect('closetag')).to.have.property('name', 'tag');
       expect(pulley.expect('text')).to.have.property('text', ' Nice.');
-      expect(pulley.expect('closetag')).to.equal('root');
+      expect(pulley.expect('closetag')).to.have.property('name', 'root');
       expect(pulley.next()).to.be.undefined;
     });
   });

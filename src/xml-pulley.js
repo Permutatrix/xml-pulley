@@ -69,6 +69,14 @@ class Pulley {
             data: {text: textOpts(t), rawText: t}
           });
         }
+      } else if(type === 'closetag') {
+        parser.onclosetag = (t) => {
+          flushText();
+          queue.enqueue({
+            type: 'closetag',
+            data: {name: t}
+          });
+        }
       } else if(isAllowedType(type)) {
         parser['on'+type] = (data) => {
           flushText();
