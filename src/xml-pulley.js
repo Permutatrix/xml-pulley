@@ -17,17 +17,26 @@ class XMLPulley {
     let types = options.types || ['opentag', 'closetag', 'text'];
     let queue = this.queue = new Queue();
     let parser = saxParser(true, {
-      trim: options.trim,
-      normalize: options.normalize,
       xmlns: options.xmlns,
       position: false
     });
     let skipWS = options.skipWhitespaceOnly;
-    let text = null;
+    let trim = options.trim, normalize = options.normalize;
+    function textOpts(t) {
+      if(trim)
+        t = t.trim();
+      if(normalize)
+        t = t.replace(/\s+/g, " ")
+      return t;
+    }
+    let text = null, rawText = null;
     let flushText = () => {
-      if(text) {
-        this.queue.enqueue({type: 'text', data: text});
-        text = null;
+      if(text !== null) {
+        this.queue.enqueue({
+          type: 'text',
+          data: {text: text, rawText: rawText}
+        });
+        text = rawText = null;
       }
     };
     parser.onerror = (err) => {
@@ -35,10 +44,31 @@ class XMLPulley {
     };
     types.forEach((type) => {
       if(type === 'text') {
-        parser.ontext = parser.oncdata = (t) => {
-          if(!skipWS || /\S/.test(t))
-            text = text ? text + t : t;
+        parser.ontext = (t) => {
+          if(!skipWS || /\S/.test(t)) {
+            let pt = textOpts(t);
+            if(text) {
+              text += pt; rawText += t;
+            } else {
+              text = pt; rawText = t;
+            }
+          }
         };
+        parser.oncdata = (t) => {
+          if(text) {
+            text += t; rawText += t;
+          } else {
+            text = rawText = t;
+          }
+        }
+      } else if(type === 'comment' && (trim || normalize)) {
+        parser.oncomment = (t) => {
+          flushText();
+          queue.enqueue({
+            type: 'comment',
+            data: {text: textOpts(t), rawText: t}
+          });
+        }
       } else if(isAllowedType(type)) {
         parser['on'+type] = (data) => {
           flushText();
