@@ -110,6 +110,13 @@ class XMLPulley {
   }
 }
 
-export function xmlPulley(xml, options) {
+export function makePulley(xml, options) {
   return new XMLPulley(xml, options);
+}
+
+export function assertName(tag, name, error) {
+  if(tag.name !== name) {
+    throw error ||
+          new Error(`${tag.type} had type ${tag.name} instead of ${name}!`);
+  }
 }
