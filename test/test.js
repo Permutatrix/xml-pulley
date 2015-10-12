@@ -69,10 +69,10 @@ describe("XMLPulley", function() {
       expect(function() { pulley.expect('text'); }).to.throw();
     });
     
-    it("should behave like next().data on success", function() {
+    it("should return the same as next() on success", function() {
       var pulley1 = xmlPulley('<root attr="val" />');
       var pulley2 = xmlPulley('<root attr="val" />');
-      expect(pulley1.expect('opentag')).to.deep.equal(pulley2.next().data);
+      expect(pulley1.expect('opentag')).to.deep.equal(pulley2.next());
     });
     
     it("should move up the queue on success", function() {

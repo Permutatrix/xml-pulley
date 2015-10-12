@@ -34,7 +34,8 @@ class Pulley {
       if(text !== null) {
         this.queue.enqueue({
           type: 'text',
-          data: {text: text, rawText: rawText}
+          text: text,
+          rawText: rawText
         });
         text = rawText = null;
       }
@@ -66,7 +67,8 @@ class Pulley {
           flushText();
           queue.enqueue({
             type: 'comment',
-            data: {text: textOpts(t), rawText: t}
+            text: textOpts(t),
+            rawText: t
           });
         }
       } else if(type === 'closetag') {
@@ -74,13 +76,14 @@ class Pulley {
           flushText();
           queue.enqueue({
             type: 'closetag',
-            data: {name: t}
+            name: t
           });
         }
       } else if(isAllowedType(type)) {
         parser['on'+type] = (data) => {
           flushText();
-          queue.enqueue({type: type, data: data});
+          data.type = type;
+          queue.enqueue(data);
         }
       } else {
         throw new Error(`${type} isn't an allowed type!`);
@@ -103,7 +106,7 @@ class Pulley {
       throw new Error(`Expected ${type}; got ${out.type}!`);
     }
     this.next();
-    return out.data;
+    return out;
   }
 }
 
