@@ -108,6 +108,14 @@ class XMLPulley {
     this.next();
     return out;
   }
+  forEach(callback, tagName) {
+    var node;
+    while((node = this.next()).type !== 'closetag') {
+      callback(node, this);
+    }
+    if(tagName)
+      assertName(node, tagName);
+  }
 }
 
 export function makePulley(xml, options) {
