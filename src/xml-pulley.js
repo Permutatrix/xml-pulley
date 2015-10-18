@@ -150,6 +150,16 @@ class XMLPulley {
     }
     this.expectName(tag.name, 'closetag');
   }
+  skipTag(name) {
+    this.loopTag((pulley) => {
+      let tag = pulley.peek();
+      if(tag.type === 'opentag') {
+        this.skipTag(tag.name);
+      } else {
+        this.next();
+      }
+    }, name);
+  }
 }
 
 export function makePulley(xml, options) {
