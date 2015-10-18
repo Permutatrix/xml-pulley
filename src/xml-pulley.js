@@ -142,15 +142,6 @@ class XMLPulley {
         break;
     }
   }
-  expectAll(callback, type, endType) {
-    endType = endType || 'closetag';
-    let node;
-    while((node = this.peek()) && node.type !== endType) {
-      assertType(node, type);
-      if(callback(this))
-        break;
-    }
-  }
 }
 
 export function makePulley(xml, options) {
