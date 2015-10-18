@@ -202,7 +202,7 @@ describe("XMLPulley", function() {
       pulley.expect('opentag');
       pulley.loop(function(pulley) {
         var tag = pulley.expect('opentag').name;
-        if(tag === 'b') return true;
+        if(tag === 'b') return 1;
         pulley.expectName(tag, 'closetag');
       });
       pulley.expectName('b', 'closetag');
