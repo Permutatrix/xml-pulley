@@ -142,6 +142,14 @@ class XMLPulley {
         break;
     }
   }
+  loopTag(callback, name) {
+    let tag = name ? this.expectName(name) : this.expect('opentag');
+    let node;
+    while((node = this.peek()) && node.type !== 'closetag') {
+      callback(this, tag);
+    }
+    this.expectName(tag.name, 'closetag');
+  }
 }
 
 export function makePulley(xml, options) {
