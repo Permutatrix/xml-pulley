@@ -112,17 +112,25 @@ class XMLPulley {
   peek() {
     return this.queue.peek();
   }
-  expect(type, error) {
+  check(type, error) {
     let out = this.peek();
     assertType(out, type, error);
-    this.next();
     return out;
   }
-  expectName(name, type, wrongNameError, wrongTypeError) {
+  checkName(name, type, wrongNameError, wrongTypeError) {
     type = type || 'opentag';
     let out = this.peek();
     assertType(out, type, wrongTypeError || wrongNameError);
     assertName(out, name, wrongNameError);
+    return out;
+  }
+  expect(type, error) {
+    let out = this.check(type, error);
+    this.next();
+    return out;
+  }
+  expectName(name, type, wrongNameError, wrongTypeError) {
+    let out = this.checkName(name, type, wrongNameError, wrongTypeError);
     this.next();
     return out;
   }
