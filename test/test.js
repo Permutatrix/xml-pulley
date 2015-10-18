@@ -287,6 +287,39 @@ describe("XMLPulley", function() {
       expect(expected).to.be.empty;
     });
   });
+  
+  describe(".skipTag()", function() {
+    it("should consume the entire contents of the tag", function() {
+      var pulley = makePulley('<root><a>text <b/> <b><a/>text</b></a></root>');
+      pulley.expectName('root');
+      pulley.skipTag();
+      pulley.expectName('root', 'closetag');
+    });
+    
+    it("should throw if it hits the end of the file with no closetag", function() {
+      var pulley = makePulley('<root></root>', {types: ['opentag']});
+      expect(function() {
+        pulley.skipTag();
+      }).to.throw();
+      expect(pulley.next()).to.be.undefined;
+    });
+    
+    it("should throw if the cursor isn't on an opentag", function() {
+      var pulley = makePulley('<!-- --><root></root>', {types: ['opentag', 'closetag', 'comment']});
+      expect(function() {
+        pulley.skipTag();
+      }).to.throw();
+      pulley.expect('comment');
+    });
+    
+    it("should throw when passed a tag name different from the cursor's", function() {
+      var pulley = makePulley('<root></root>', {types: ['opentag', 'closetag', 'comment']});
+      expect(function() {
+        pulley.skipTag('not-root');
+      }).to.throw();
+      pulley.expectName('root');
+    });
+  });
 });
 
 describe("Behavior", function() {
