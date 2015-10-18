@@ -286,6 +286,23 @@ describe("XMLPulley", function() {
       });
       expect(expected).to.be.empty;
     });
+    
+    it("should pass the opentag into the callback every time", function() {
+      var pulley = makePulley('<root>text <a/></root>');
+      var opentag = pulley.peek();
+      pulley.loopTag(function(pulley, tag) {
+        expect(tag).to.equal(opentag);
+        if(pulley.next().type === 'opentag') pulley.expect('closetag');
+      });
+    });
+    
+    it("should return the opentag", function() {
+      var pulley = makePulley('<root></root>');
+      var opentag = pulley.peek();
+      expect(pulley.loopTag(function(pulley, tag) {
+        pulley.next();
+      })).to.equal(opentag);
+    });
   });
   
   describe(".skipTag()", function() {
@@ -318,6 +335,12 @@ describe("XMLPulley", function() {
         pulley.skipTag('not-root');
       }).to.throw();
       pulley.expectName('root');
+    });
+    
+    it("should return the opentag of the tag it skipped", function() {
+      var pulley = makePulley('<root></root>');
+      var opentag = pulley.peek();
+      expect(pulley.skipTag()).to.equal(opentag);
     });
   });
 });
