@@ -95,63 +95,62 @@ describe("XMLPulley", function() {
     });
   });
   
-  describe("expectName('opentag', )", function() {
+  describe("expectName()", function() {
     it("should throw when the next node isn't of the specified type", function() {
-      var pulley = makePulley('<root>text</root>');
+      var pulley = makePulley('<root><tag/></root>');
       pulley.expect('opentag');
-      expect(function() { pulley.expectName('opentag', 'tag'); }).to.throw();
+      expect(function() { pulley.expectName('tag', 'closetag'); }).to.throw();
     });
     
     it("should throw when the next node doesn't have the specified name", function() {
       var pulley = makePulley('<root>text</root>');
-      expect(function() { pulley.expectName('opentag', 'not-root'); }).to.throw();
+      expect(function() { pulley.expectName('not-root'); }).to.throw();
     });
     
     it("should throw when there's no more data", function() {
       var pulley = makePulley('');
-      expect(function() { pulley.expectName('opentag', 'tag'); }).to.throw();
+      expect(function() { pulley.expectName('tag'); }).to.throw();
     });
     
     it("should return the same as next() on success", function() {
       var pulley1 = makePulley('<root attr="val" />');
       var pulley2 = makePulley('<root attr="val" />');
-      expect(pulley1.expectName('opentag', 'root')).to.deep.equal(pulley2.next());
+      expect(pulley1.expectName('root')).to.deep.equal(pulley2.next());
     });
     
     it("should move up the queue on success", function() {
       var pulley = makePulley('<root />');
-      pulley.expectName('opentag', 'root');
+      pulley.expectName('root');
       pulley.expect('closetag');
     });
     
     it("should leave the queue untouched on failure", function() {
       var pulley = makePulley('<root />');
-      expect(function() { pulley.expectName('opentag', 'tag'); }).to.throw();
+      expect(function() { pulley.expectName('tag'); }).to.throw();
       pulley.expect('opentag');
     });
   });
   
   describe("nextAll()", function() {
-    it("should return undefined when there's no more data", function() {
-      var pulley = makePulley('');
-      expect(pulley.next()).to.be.undefined;
+    // oh god nextAll() is so complicated and I hate writing tests :(((
+    it("should repeat until it finds a node of the given endType", function() {
+      var pulley = makePulley('<root><a/><b/>c<d/></root>');
+      var expected = ['root', 'a', 'a', 'b', 'b'].reverse();
+      pulley.nextAll(function(pulley) {
+        expect(pulley.next()).to.have.property('name', expected.pop());
+      }, 'text');
+      expect(expected).to.be.empty;
+      expect(pulley.expect('text')).to.have.property('text', 'c');
     });
     
-    it("should probably work, that might be important down the line", function() {
-      var pulley = makePulley('<root>A <tag attr="value">tag. <tag>And another.</tag></tag> Nice.</root>');
-      expect(pulley.expect('opentag')).to.have.property('name', 'root');
-      expect(pulley.expect('text')).to.have.property('text', 'A ');
-      var tag = pulley.expect('opentag');
-      expect(tag).to.have.property('name', 'tag');
-      expect(tag).to.have.deep.property('attributes.attr', 'value');
-      expect(pulley.expect('text')).to.have.property('text', 'tag. ');
-      expect(pulley.expect('opentag')).to.have.property('name', 'tag');
-      expect(pulley.expect('text')).to.have.property('text', 'And another.');
-      expect(pulley.expect('closetag')).to.have.property('name', 'tag');
-      expect(pulley.expect('closetag')).to.have.property('name', 'tag');
-      expect(pulley.expect('text')).to.have.property('text', ' Nice.');
-      expect(pulley.expect('closetag')).to.have.property('name', 'root');
-      expect(pulley.next()).to.be.undefined;
+    it("should set endType to 'closetag' by default", function() {
+      var pulley = makePulley('<root><a/><b/>c<d/></root>');
+      var expected = ['root', 'a'].reverse();
+      pulley.nextAll(function(pulley) {
+        expect(pulley.next()).to.have.property('name', expected.pop());
+      });
+      expect(expected).to.be.empty;
+      pulley.expectName('a', 'closetag');
     });
   });
 });
