@@ -131,13 +131,13 @@ describe("XMLPulley", function() {
     });
   });
   
-  describe("nextAll()", function() {
-    // oh god nextAll() is so complicated and I hate writing tests :(((
+  describe("loop()", function() {
+    // oh god loop() is so complicated and I hate writing tests :(((
     it("should repeat until it finds a node of the given endType", function() {
       var pulley = makePulley('<root><a/><b/>c<d/></root>');
-      var expected = ['root', 'a', 'a', 'b', 'b'].reverse();
-      pulley.nextAll(function(pulley) {
-        expect(pulley.next()).to.have.property('name', expected.pop());
+      var expected = ['root', 'a', 'a', 'b', 'b'];
+      pulley.loop(function(pulley) {
+        expect(pulley.next()).to.have.property('name', expected.shift());
       }, 'text');
       expect(expected).to.be.empty;
       expect(pulley.expect('text')).to.have.property('text', 'c');
@@ -145,12 +145,67 @@ describe("XMLPulley", function() {
     
     it("should set endType to 'closetag' by default", function() {
       var pulley = makePulley('<root><a/><b/>c<d/></root>');
-      var expected = ['root', 'a'].reverse();
-      pulley.nextAll(function(pulley) {
-        expect(pulley.next()).to.have.property('name', expected.pop());
+      var expected = ['root', 'a'];
+      pulley.loop(function(pulley) {
+        expect(pulley.next()).to.have.property('name', expected.shift());
       });
       expect(expected).to.be.empty;
       pulley.expectName('a', 'closetag');
+    });
+    
+    it("should go up to the end of the file if no node of type endType is found", function() {
+      var pulley = makePulley('<root>text</root>');
+      pulley.expect('opentag');
+      var expected = ['text', 'text', 'name', 'root'];
+      pulley.loop(function(pulley) {
+        expect(pulley.next()).to.have.property(expected.shift(), expected.shift());
+      }, 'opentag');
+      expect(expected).to.be.empty;
+      expect(pulley.next()).to.be.undefined;
+    });
+    
+    it("should let the user decide the size of a unit", function() {
+      var pulley = makePulley('<root><a/><b/><c/></root>');
+      pulley.expect('opentag');
+      var expected = ['a', 'b', 'c'];
+      pulley.loop(function(pulley) {
+        var next = expected.shift();
+        expect(pulley.next()).to.have.property('name', next);
+        expect(pulley.next()).to.have.property('name', next);
+      });
+      expect(expected).to.be.empty;
+      pulley.expectName('root', 'closetag');
+    });
+    
+    it("should work properly when nested", function() {
+      var pulley = makePulley('<root><a><b/></a><b><a/><b/></b></root>');
+      pulley.expect('opentag');
+      var expected = ['a', ['b'], 'b', ['a', 'b']];
+      pulley.loop(function(pulley) {
+        var next = expected.shift();
+        pulley.expectName(next);
+        var items = expected.shift();
+        pulley.loop(function(pulley) {
+          var next = items.shift();
+          pulley.expectName(next);
+          pulley.expectName(next, 'closetag');
+        });
+        expect(items).to.be.empty;
+        pulley.expectName(next, 'closetag');
+      });
+      expect(expected).to.be.empty;
+      pulley.expectName('root', 'closetag');
+    });
+    
+    it("should break out of the loop if the callback returns a truthy value", function() {
+      var pulley = makePulley('<root><a/><c/><b/></root>');
+      pulley.expect('opentag');
+      pulley.loop(function(pulley) {
+        var tag = pulley.expect('opentag').name;
+        if(tag === 'b') return true;
+        pulley.expectName(tag, 'closetag');
+      });
+      pulley.expectName('b', 'closetag');
     });
   });
 });
