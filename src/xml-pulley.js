@@ -126,7 +126,7 @@ class XMLPulley {
     return out;
   }
   nextAll(callback, tagName) {
-    var node;
+    let node;
     while((node = this.peek()).type !== 'closetag') {
       if(callback(this))
         break;
@@ -135,7 +135,7 @@ class XMLPulley {
       assertName(this.next(), tagName);
   }
   expectAll(callback, type, tagName) {
-    var node;
+    let node;
     while((node = this.peek()).type !== 'closetag') {
       assertType(node, type);
       if(callback(this))
