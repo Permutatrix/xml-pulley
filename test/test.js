@@ -1,6 +1,6 @@
 var expect = require('chai').expect;
 var xmlPulley = require('../lib/xml-pulley.js');
-var makePulley = xmlPulley.makePulley, assertName = xmlPulley.assertName;
+var makePulley = xmlPulley.makePulley;
 
 describe("makePulley()", function() {
   it("should throw when passed an invalid type", function() {
@@ -18,7 +18,55 @@ describe("makePulley()", function() {
 
 describe("assertName()", function() {
   it("should throw when passed a tag with the wrong name", function() {
-    expect(function() {  })
+    var pulley = makePulley('<root/>');
+    expect(function() {
+      xmlPulley.assertName(pulley.next(), 'not-root');
+    }).to.throw();
+  });
+  
+  it("should not throw when passed a tag with the right name", function() {
+    var pulley = makePulley('<root/>');
+    expect(function() {
+      xmlPulley.assertName(pulley.next(), 'root');
+    }).to.not.throw();
+  });
+  
+  it("should throw the passed-in error", function() {
+    var pulley = makePulley('<root/>');
+    var error = new Error('test error');
+    expect(function() {
+      xmlPulley.assertName(pulley.next(), 'not-root', error);
+    }).to.throw(error);
+  });
+});
+
+describe("assertType()", function() {
+  it("should throw when passed a tag with the wrong type", function() {
+    var pulley = makePulley('<root/>');
+    expect(function() {
+      xmlPulley.assertType(pulley.next(), 'closetag');
+    }).to.throw();
+  });
+  
+  it("should throw when passed undefined", function() {
+    expect(function() {
+      xmlPulley.assertType(undefined, 'closetag');
+    }).to.throw();
+  });
+  
+  it("should not throw when passed a tag with the right type", function() {
+    var pulley = makePulley('<root/>');
+    expect(function() {
+      xmlPulley.assertType(pulley.next(), 'opentag');
+    }).to.not.throw();
+  });
+  
+  it("should throw the passed-in error", function() {
+    var pulley = makePulley('<root/>');
+    var error = new Error('test error');
+    expect(function() {
+      xmlPulley.assertType(pulley.next(), 'closetag', error);
+    }).to.throw(error);
   });
 });
 

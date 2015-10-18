@@ -169,9 +169,9 @@ export function makePulley(xml, options) {
 
 export function assertType(node, type, error) {
   if(node === undefined) {
-    throw new Error(`Expected ${type}; got end of file!`);
+    throw error || new Error(`Expected ${type}; got end of file!`);
   } else if(node.type !== type) {
-    throw new Error(`Expected ${type}; got ${node.type}: ${nodeRepr(node)}!`);
+    throw error || new Error(`Expected ${type}; got ${node.type}: ${nodeRepr(node)}!`);
   }
 }
 export function assertName(tag, name, error) {
