@@ -134,7 +134,7 @@ class XMLPulley {
     this.next();
     return out;
   }
-  nextAll(callback, endType) {
+  loop(callback, endType) {
     endType = endType || 'closetag';
     let node;
     while((node = this.peek()) && node.type !== endType) {
