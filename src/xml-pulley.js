@@ -118,9 +118,9 @@ class XMLPulley {
     this.next();
     return out;
   }
-  expectTag(name, wrongNameError, wrongTypeError) {
+  expectName(type, name, wrongNameError, wrongTypeError) {
     let out = this.peek();
-    assertType(out, 'opentag', wrongTypeError || wrongNameError);
+    assertType(out, type, wrongTypeError || wrongNameError);
     assertName(out, name, wrongNameError);
     this.next();
     return out;
