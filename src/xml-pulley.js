@@ -62,13 +62,21 @@ class XMLPulley {
             text = rawText = t;
           }
         };
-      } else if(type === 'comment' && (trim || normalize)) {
+      } else if(type === 'comment') {
         parser.oncomment = (t) => {
           flushText();
           queue.enqueue({
             type: 'comment',
             text: textOpts(t),
             rawText: t
+          });
+        }
+      } else if(type === 'doctype') {
+        parser.ondoctype = (t) => {
+          flushText();
+          queue.enqueue({
+            type: 'doctype',
+            text: t
           });
         }
       } else if(type === 'closetag') {
@@ -78,6 +86,12 @@ class XMLPulley {
             type: 'closetag',
             name: t
           });
+        }
+      } else if(type === 'opencdata' || type === 'closecdata' ||
+                type === 'opennamespace' || type === 'closenamespace') {
+        parser['on'+type] = (data) => {
+          flushText();
+          queue.enqueue({ type: type });
         }
       } else if(isAllowedType(type)) {
         parser['on'+type] = (data) => {
@@ -98,22 +112,24 @@ class XMLPulley {
   peek() {
     return this.queue.peek();
   }
-  expect(type) {
+  expect(type, error) {
     let out = this.peek();
-    if(out === undefined) {
-      throw new Error(`Expected ${type}; got end of file!`);
-    } else if(out.type !== type) {
-      throw new Error(`Expected ${type}; got ${out.type}!`);
-    }
+    assertType(out, type, error);
+    this.next();
+    return out;
+  }
+  expectTag(name, wrongNameError, wrongTypeError) {
+    let out = this.peek();
+    assertType(out, 'opentag', wrongTypeError || wrongNameError);
+    assertName(out, name, wrongNameError);
     this.next();
     return out;
   }
   nextAll(callback, tagName) {
     var node;
     while((node = this.peek()).type !== 'closetag') {
-      if(callback(node, this))
+      if(callback(this))
         break;
-      this.next();
     }
     if(tagName)
       assertName(this.next(), tagName);
@@ -121,11 +137,9 @@ class XMLPulley {
   expectAll(callback, type, tagName) {
     var node;
     while((node = this.peek()).type !== 'closetag') {
-      if(node.type !== type)
-        throw new Error(`Expected ${type}; got ${node.type}!`);
-      if(callback(node, this))
+      assertType(node, type);
+      if(callback(this))
         break;
-      this.next();
     }
     if(tagName)
       assertName(this.next(), tagName);
@@ -136,9 +150,28 @@ export function makePulley(xml, options) {
   return new XMLPulley(xml, options);
 }
 
+export function assertType(node, type, error) {
+  if(node === undefined) {
+    throw new Error(`Expected ${type}; got end of file!`);
+  } else if(node.type !== type) {
+    throw new Error(`Expected ${type}; got ${node.type}: ${nodeRepr(node)}!`);
+  }
+}
 export function assertName(tag, name, error) {
   if(tag.name !== name) {
     throw error ||
-          new Error(`${tag.type} had type ${tag.name} instead of ${name}!`);
+          new Error(`${tag.type} had name ${tag.name} instead of ${name}!`);
+  }
+}
+
+export function nodeRepr(tag) {
+  switch(tag.type) {
+    case 'text': case 'comment': return `"${tag.text}"`;
+    case 'opentag': return `<${tag.name}>`;
+    case 'closetag': return `</${tag.name}>`;
+    case 'doctype': return `<!${tag.text}>`;
+    case 'processinginstruction': return `<?${tag.name} ${tag.body}?>`;
+    case 'attribute': return `${tag.name}="${tag.value}"`;
+    default:
   }
 }
