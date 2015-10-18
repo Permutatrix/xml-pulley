@@ -149,6 +149,7 @@ class XMLPulley {
       callback(this, tag);
     }
     this.expectName(tag.name, 'closetag');
+    return tag;
   }
   skipTag(name) {
     this.loopTag((pulley) => {
