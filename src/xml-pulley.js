@@ -152,7 +152,7 @@ class XMLPulley {
     return tag;
   }
   skipTag(name) {
-    this.loopTag((pulley) => {
+    return this.loopTag((pulley) => {
       let tag = pulley.peek();
       if(tag.type === 'opentag') {
         this.skipTag(tag.name);
