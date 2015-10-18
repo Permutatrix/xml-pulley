@@ -23,7 +23,7 @@ describe("assertName()", function() {
 });
 
 describe("XMLPulley", function() {
-  describe("next()", function() {
+  describe(".next()", function() {
     it("should return undefined when there's no more data", function() {
       var pulley = makePulley('');
       expect(pulley.next()).to.be.undefined;
@@ -47,27 +47,27 @@ describe("XMLPulley", function() {
     });
   });
   
-  describe("peek()", function() {
+  describe(".peek()", function() {
     it("should return undefined when there's no more data", function() {
       var pulley = makePulley('');
       expect(pulley.peek()).to.be.undefined;
     });
     
     it("should return the same as next()", function() {
-      var pulley1 = makePulley('<root attr="val" />');
-      var pulley2 = makePulley('<root attr="val" />');
+      var pulley1 = makePulley('<root attr="val"/>');
+      var pulley2 = makePulley('<root attr="val"/>');
       expect(pulley1.peek()).to.deep.equal(pulley2.next());
     });
     
     it("should return the same value on consecutive calls", function() {
-      var pulley = makePulley('<root />');
+      var pulley = makePulley('<root/>');
       expect(pulley.peek()).to.equal(pulley.peek());
     });
   });
   
-  describe("expect()", function() {
+  describe(".expect()", function() {
     it("should throw when the next node isn't of the specified type", function() {
-      var pulley = makePulley('<root />');
+      var pulley = makePulley('<root/>');
       expect(function() { pulley.expect('text'); }).to.throw();
     });
     
@@ -77,25 +77,25 @@ describe("XMLPulley", function() {
     });
     
     it("should return the same as next() on success", function() {
-      var pulley1 = makePulley('<root attr="val" />');
-      var pulley2 = makePulley('<root attr="val" />');
+      var pulley1 = makePulley('<root attr="val"/>');
+      var pulley2 = makePulley('<root attr="val"/>');
       expect(pulley1.expect('opentag')).to.deep.equal(pulley2.next());
     });
     
     it("should move up the queue on success", function() {
-      var pulley = makePulley('<root />');
+      var pulley = makePulley('<root/>');
       pulley.expect('opentag');
       pulley.expect('closetag');
     });
     
     it("should leave the queue untouched on failure", function() {
-      var pulley = makePulley('<root />');
+      var pulley = makePulley('<root/>');
       expect(function() { pulley.expect('closetag'); }).to.throw();
       pulley.expect('opentag');
     });
   });
   
-  describe("expectName()", function() {
+  describe(".expectName()", function() {
     it("should throw when the next node isn't of the specified type", function() {
       var pulley = makePulley('<root><tag/></root>');
       pulley.expect('opentag');
@@ -113,25 +113,25 @@ describe("XMLPulley", function() {
     });
     
     it("should return the same as next() on success", function() {
-      var pulley1 = makePulley('<root attr="val" />');
-      var pulley2 = makePulley('<root attr="val" />');
+      var pulley1 = makePulley('<root attr="val"/>');
+      var pulley2 = makePulley('<root attr="val"/>');
       expect(pulley1.expectName('root')).to.deep.equal(pulley2.next());
     });
     
     it("should move up the queue on success", function() {
-      var pulley = makePulley('<root />');
+      var pulley = makePulley('<root/>');
       pulley.expectName('root');
       pulley.expect('closetag');
     });
     
     it("should leave the queue untouched on failure", function() {
-      var pulley = makePulley('<root />');
+      var pulley = makePulley('<root/>');
       expect(function() { pulley.expectName('tag'); }).to.throw();
       pulley.expect('opentag');
     });
   });
   
-  describe("loop()", function() {
+  describe(".loop()", function() {
     // oh god loop() is so complicated and I hate writing tests :(((
     it("should repeat until it finds a node of the given endType", function() {
       var pulley = makePulley('<root><a/><b/>c<d/></root>');
@@ -170,8 +170,8 @@ describe("XMLPulley", function() {
       var expected = ['a', 'b', 'c'];
       pulley.loop(function(pulley) {
         var next = expected.shift();
-        expect(pulley.next()).to.have.property('name', next);
-        expect(pulley.next()).to.have.property('name', next);
+        pulley.expectName(next);
+        pulley.expectName(next, 'closetag');
       });
       expect(expected).to.be.empty;
       pulley.expectName('root', 'closetag');
@@ -206,6 +206,85 @@ describe("XMLPulley", function() {
         pulley.expectName(tag, 'closetag');
       });
       pulley.expectName('b', 'closetag');
+    });
+  });
+  
+  describe(".loopTag()", function() {
+    it("should consume the entire contents of the tag", function() {
+      var pulley = makePulley('<root>text <!--comment--> text</root>', {types: ['opentag', 'closetag', 'text', 'comment']});
+      var expected = ['text ', 'comment', ' text'];
+      pulley.loopTag(function(pulley) {
+        expect(pulley.next()).to.have.property('text', expected.shift());
+      });
+      expect(expected).to.be.empty;
+      expect(pulley.next()).to.be.undefined;
+    });
+    
+    it("should throw if it finds a closetag with the wrong name", function() {
+      var pulley = makePulley('<root><a/></root>');
+      expect(function() {
+        pulley.loopTag(function(pulley) {
+          pulley.next();
+        });
+      }).to.throw();
+      pulley.expectName('a', 'closetag');
+    });
+    
+    it("should throw if it hits the end of the file with no closetag", function() {
+      var pulley = makePulley('<root><a/></root>');
+      expect(function() {
+        pulley.loopTag(function(pulley) {
+          for(var i = 0; i < 10; ++i) pulley.next();
+        });
+      }).to.throw();
+      expect(pulley.next()).to.be.undefined;
+    });
+    
+    it("should throw if the cursor isn't on an opentag", function() {
+      var pulley = makePulley('<!-- --><root></root>', {types: ['opentag', 'closetag', 'comment']});
+      expect(function() {
+        pulley.loopTag(function(pulley) {
+          pulley.next();
+        });
+      }).to.throw();
+      pulley.expect('comment');
+    });
+    
+    it("should throw when passed a tag name different from the cursor's", function() {
+      var pulley = makePulley('<root></root>', {types: ['opentag', 'closetag', 'comment']});
+      expect(function() {
+        pulley.loopTag(function(pulley) {
+          pulley.next();
+        }, 'not-root');
+      }).to.throw();
+      pulley.expectName('root');
+    });
+    
+    it("should let the user decide the size of a unit", function() {
+      var pulley = makePulley('<root><a/><b/><c/></root>');
+      var expected = ['a', 'b', 'c'];
+      pulley.loopTag(function(pulley) {
+        var next = expected.shift();
+        pulley.expectName(next);
+        pulley.expectName(next, 'closetag');
+      });
+      expect(expected).to.be.empty;
+    });
+    
+    it("should work properly when nested", function() {
+      var pulley = makePulley('<root><a><b/></a><b><a/><b/></b></root>');
+      var expected = ['a', ['b'], 'b', ['a', 'b']];
+      pulley.loopTag(function(pulley) {
+        var next = expected.shift();
+        var items = expected.shift();
+        pulley.loopTag(function(pulley) {
+          var next = items.shift();
+          pulley.expectName(next);
+          pulley.expectName(next, 'closetag');
+        }, next);
+        expect(items).to.be.empty;
+      });
+      expect(expected).to.be.empty;
     });
   });
 });
@@ -323,7 +402,7 @@ describe("Behavior", function() {
   });
   
   it("should include trailing text", function() {
-    var pulley = makePulley('<root /> ');
+    var pulley = makePulley('<root/> ');
     pulley.expect('opentag');
     pulley.expect('closetag');
     expect(pulley.expect('text')).to.have.property('text', ' ');
