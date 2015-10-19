@@ -1,4 +1,6 @@
 # xml-pulley [![Build Status][travis-image]][travis-url]
+[![NPM][npm-image]][npm-url]
+
 This is a simple parser for XML&mdash;actually just a relatively thin wrapper
 around [sax-js]. It's designed for and tested on [node], but it should work on
 other CommonJS implementations, as well as browsers with the help of
@@ -21,6 +23,8 @@ like; those were boring enough to write on their own. The wiki also has
 
 [travis-url]: https://travis-ci.org/Permutatrix/xml-pulley
 [travis-image]: https://travis-ci.org/Permutatrix/xml-pulley.svg
+[npm-url]: https://npmjs.org/package/xml-pulley
+[npm-image]: https://nodei.co/npm/xml-pulley.png
 
 [sax-js]: https://www.npmjs.com/package/sax
 [node]: https://nodejs.org/
