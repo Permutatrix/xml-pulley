@@ -22,13 +22,13 @@ export function makePulley(xml, options) {
   });
   let skipWS = options.skipWhitespaceOnly;
   let trim = options.trim, normalize = options.normalize;
-  let textOpts = trim || normalize ? (t) => {
+  let textOpts = (t) => {
     if(trim)
       t = t.trim();
     if(normalize)
       t = t.replace(/\s+/g, " ")
     return t;
-  } : (t) => t;
+  };
   let text = null, rawText = null;
   let flushText = () => {
     if(text !== null) {
