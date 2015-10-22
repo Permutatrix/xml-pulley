@@ -29,13 +29,21 @@ export function makePulley(xml, options) {
       t = t.replace(/\s+/g, " ")
     return t;
   };
-  let text = null, rawText = null;
+  let text = null, rawText = null, wsText = null, wsRawText = null;
   let flushText = () => {
     if(text !== null) {
+      if(skipWS) {
+        queue.push({
+          type: 'wstext',
+          text: wsText,
+          rawText: wsRawText
+        });
+        wsText = wsRawText = null;
+      }
       queue.push({
         type: 'text',
-        text: text,
-        rawText: rawText
+        text,
+        rawText
       });
       text = rawText = null;
     }
@@ -46,8 +54,15 @@ export function makePulley(xml, options) {
   types.forEach((type) => {
     if(type === 'text') {
       parser.ontext = (t) => {
+        let pt = textOpts(t);
+        if(skipWS) {
+          if(wsText) {
+            wsText += pt; wsRawText += t;
+          } else {
+            wsText = pt; wsRawText = t;
+          }
+        }
         if(!skipWS || /\S/.test(t)) {
-          let pt = textOpts(t);
           if(text) {
             text += pt; rawText += t;
           } else {
@@ -108,10 +123,37 @@ export function makePulley(xml, options) {
   queue.reverse();
   
   let next = () => {
-    return queue.pop();
+    let out;
+    while((out = queue.pop()) && out.type === 'wstext') {  }
+    return out;
   }
   let peek = () => {
-    return queue[queue.length - 1];
+    for(let i = queue.length - 1; i >= 0; --i) {
+      let v = queue[i];
+      if(v.type !== 'wstext') return v;
+    }
+  }
+  let nextText = () => {
+    let v = queue[queue.length - 1];
+    if(v.type === 'text') {
+      return queue.pop();
+    } else if(v.type === 'wstext') {
+      queue.pop(); queue.pop();
+      v.type = 'text';
+      return v;
+    } else {
+      return { type: 'text', text: '', rawText: '' };
+    }
+  }
+  let peekText = () => {
+    let v = queue[queue.length - 1];
+    if(v.type === 'text') {
+      return v;
+    } else if(v.type === 'wstext') {
+      return { type: 'text', text: v.text, rawText: v.rawText };
+    } else {
+      return { type: 'text', text: '', rawText: '' };
+    }
   }
   let check = (type, error) => {
     let out = peek();
@@ -165,6 +207,8 @@ export function makePulley(xml, options) {
   return self = {
     next,
     peek,
+    nextText,
+    peekText,
     check,
     checkName,
     expect,
