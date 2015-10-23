@@ -101,15 +101,77 @@ describe("XMLPulley", function() {
       expect(pulley.peek()).to.be.undefined;
     });
     
-    it("should return the same as next()", function() {
-      var pulley1 = makePulley('<root attr="val"/>');
-      var pulley2 = makePulley('<root attr="val"/>');
-      expect(pulley1.peek()).to.deep.equal(pulley2.next());
+    it("should return the same value as next()", function() {
+      var pulley = makePulley('<root attr="val"/>');
+      expect(pulley.peek()).to.equal(pulley.next());
     });
     
     it("should return the same value on consecutive calls", function() {
       var pulley = makePulley('<root/>');
       expect(pulley.peek()).to.equal(pulley.peek());
+    });
+  });
+  
+  describe(".nextText()", function() {
+    it("should return the current block of text if there is one", function() {
+      var pulley = makePulley('<text>\n  Text.\n</text>', {trim: true, normalize: true});
+      pulley.expectName('text');
+      expect(pulley.peek()).to.deep.equal(pulley.nextText());
+    });
+    
+    it("should provide whitespace-only text even if it's configured to be skipped", function() {
+      var pulley = makePulley('<text>\n</text>', {skipWhitespaceOnly: true});
+      pulley.expectName('text');
+      expect(pulley.nextText()).to.have.property('text', '\n');
+    });
+    
+    it("should return an empty text node when there's no text to read", function() {
+      var pulley = makePulley('<notext></notext>');
+      pulley.expectName('notext');
+      expect(pulley.nextText()).to.have.property('rawText', '');
+    });
+    
+    it("should return an empty text node when there's no more data", function() {
+      var pulley = makePulley('');
+      expect(pulley.nextText()).to.have.property('rawText', '');
+    });
+  });
+  
+  describe(".peekText()", function() {
+    it("should return the current block of text if there is one", function() {
+      var pulley = makePulley('<text>\n  Text.\n</text>', {trim: true, normalize: true});
+      pulley.expectName('text');
+      expect(pulley.peek()).to.deep.equal(pulley.peekText());
+    });
+    
+    it("should provide whitespace-only text even if it's configured to be skipped", function() {
+      var pulley = makePulley('<text>\n</text>', {skipWhitespaceOnly: true});
+      pulley.expectName('text');
+      expect(pulley.peekText()).to.have.property('text', '\n');
+    });
+    
+    it("should return an empty text node when there's no text to read", function() {
+      var pulley = makePulley('<notext></notext>');
+      pulley.expectName('notext');
+      expect(pulley.peekText()).to.have.property('rawText', '');
+    });
+    
+    it("should return an empty text node when there's no more data", function() {
+      var pulley = makePulley('');
+      expect(pulley.peekText()).to.have.property('rawText', '');
+    });
+    
+    it("should return an equivalent value to nextText()", function() {
+      var pulley1 = makePulley('<root>\n  Text.\n</root>', {trim: true, normalize: true});
+      var pulley2 = makePulley('<root>\n  Text.\n</root>', {trim: true, normalize: true});
+      pulley1.expectName('root'); pulley2.expectName('root');
+      expect(pulley1.peekText()).to.deep.equal(pulley2.nextText());
+    });
+    
+    it("should return equivalent values on consecutive calls", function() {
+      var pulley = makePulley('<root>\n  Text.\n</root>', {trim: true, normalize: true});
+      pulley.expectName('root');
+      expect(pulley.peekText()).to.deep.equal(pulley.peekText());
     });
   });
   
