@@ -122,22 +122,22 @@ export function makePulley(xml, options) {
   flushText();
   queue.reverse();
   
-  let next = () => {
+  let next = skipWS ? () => {
     let out;
     while((out = queue.pop()) && out.type === 'wstext') {  }
     return out;
-  }
-  let peek = () => {
+  } : () => queue.pop();
+  let peek = skipWS ? () => {
     for(let i = queue.length - 1; i >= 0; --i) {
       let v = queue[i];
       if(v.type !== 'wstext') return v;
     }
-  }
+  } : () => queue[queue.length - 1];
   let nextText = () => {
     let v = queue[queue.length - 1];
-    if(v.type === 'text') {
+    if(v && v.type === 'text') {
       return queue.pop();
-    } else if(v.type === 'wstext') {
+    } else if(v && v.type === 'wstext') {
       queue.pop(); queue.pop();
       v.type = 'text';
       return v;
@@ -147,9 +147,9 @@ export function makePulley(xml, options) {
   }
   let peekText = () => {
     let v = queue[queue.length - 1];
-    if(v.type === 'text') {
+    if(v && v.type === 'text') {
       return v;
-    } else if(v.type === 'wstext') {
+    } else if(v && v.type === 'wstext') {
       return { type: 'text', text: v.text, rawText: v.rawText };
     } else {
       return { type: 'text', text: '', rawText: '' };
