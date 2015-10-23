@@ -11,8 +11,6 @@ function isAllowedType(type) {
 }
 
 export function makePulley(xml, options) {
-  let self;
-  
   if(!options) options = {};
   let types = options.types || ['opentag', 'closetag', 'text'];
   let queue = [];
@@ -123,6 +121,11 @@ export function makePulley(xml, options) {
   flushText();
   queue.reverse();
   
+  return constructPulley(queue, skipWS);
+}
+
+function constructPulley(queue, skipWS) {
+  let self;
   let next = skipWS ? () => {
     let out;
     while((out = queue.pop()) && out.type === 'wstext') {  }
