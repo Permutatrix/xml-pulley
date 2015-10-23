@@ -119,7 +119,7 @@ describe("XMLPulley", function() {
       expect(pulley.peek()).to.deep.equal(pulley.nextText());
     });
     
-    it("should provide whitespace-only text even if it's configured to be skipped", function() {
+    it("should provide whitespace-only text even if it's configured to skip", function() {
       var pulley = makePulley('<text>\n</text>', {skipWhitespaceOnly: true});
       pulley.expectName('text');
       expect(pulley.nextText()).to.have.property('text', '\n');
@@ -144,7 +144,7 @@ describe("XMLPulley", function() {
       expect(pulley.peek()).to.deep.equal(pulley.peekText());
     });
     
-    it("should provide whitespace-only text even if it's configured to be skipped", function() {
+    it("should provide whitespace-only text even if it's configured to skip", function() {
       var pulley = makePulley('<text>\n</text>', {skipWhitespaceOnly: true});
       pulley.expectName('text');
       expect(pulley.peekText()).to.have.property('text', '\n');
