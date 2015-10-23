@@ -31,15 +31,16 @@ export function makePulley(xml, options) {
   };
   let text = null, rawText = null, wsText = null, wsRawText = null;
   let flushText = () => {
+    if(skipWS && wsText !== null) {
+      queue.push({
+        type: 'wstext',
+        text: wsText,
+        rawText: wsRawText,
+        wsHasNext: text !== null
+      });
+      wsText = wsRawText = null;
+    }
     if(text !== null) {
-      if(skipWS) {
-        queue.push({
-          type: 'wstext',
-          text: wsText,
-          rawText: wsRawText
-        });
-        wsText = wsRawText = null;
-      }
       queue.push({
         type: 'text',
         text,
@@ -138,8 +139,10 @@ export function makePulley(xml, options) {
     if(v && v.type === 'text') {
       return queue.pop();
     } else if(v && v.type === 'wstext') {
-      queue.pop(); queue.pop();
+      queue.pop();
+      if(v.wsHasNext) queue.pop();
       v.type = 'text';
+      delete v.wsHasNext;
       return v;
     } else {
       return { type: 'text', text: '', rawText: '' };
