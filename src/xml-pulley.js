@@ -145,7 +145,7 @@ export function makePulley(xml, options) {
     } else {
       return { type: 'text', text: '', rawText: '' };
     }
-  }
+  };
   let peekText = () => {
     let v = queue[queue.length - 1];
     if(v && v.type === 'text') {
@@ -155,29 +155,29 @@ export function makePulley(xml, options) {
     } else {
       return { type: 'text', text: '', rawText: '' };
     }
-  }
+  };
   let check = (type, error) => {
     let out = peek();
     assertType(out, type, error);
     return out;
-  }
+  };
   let checkName = (name, type, wrongNameError, wrongTypeError) => {
     type = type || 'opentag';
     let out = peek();
     assertType(out, type, wrongTypeError || wrongNameError);
     assertName(out, name, wrongNameError);
     return out;
-  }
+  };
   let expect = (type, error) => {
     let out = check(type, error);
     next();
     return out;
-  }
+  };
   let expectName = (name, type, wrongNameError, wrongTypeError) => {
     let out = checkName(name, type, wrongNameError, wrongTypeError);
     next();
     return out;
-  }
+  };
   let loop = (callback, endType) => {
     endType = endType || 'closetag';
     let node;
@@ -185,7 +185,7 @@ export function makePulley(xml, options) {
       if(callback(self))
         break;
     }
-  }
+  };
   let loopTag = (callback, name) => {
     let tag = name ? expectName(name) : expect('opentag');
     let node;
@@ -194,7 +194,7 @@ export function makePulley(xml, options) {
     }
     expectName(tag.name, 'closetag');
     return tag;
-  }
+  };
   let skipTag = (name) => {
     return loopTag((pulley) => {
       let tag = pulley.peek();
@@ -204,7 +204,7 @@ export function makePulley(xml, options) {
         pulley.next();
       }
     }, name);
-  }
+  };
   return self = {
     next,
     peek,
