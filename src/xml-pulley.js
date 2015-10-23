@@ -141,9 +141,7 @@ export function makePulley(xml, options) {
     } else if(v && v.type === 'wstext') {
       queue.pop();
       if(v.wsHasNext) queue.pop();
-      v.type = 'text';
-      delete v.wsHasNext;
-      return v;
+      return { type: 'text', text: v.text, rawText: v.rawText };
     } else {
       return { type: 'text', text: '', rawText: '' };
     }
