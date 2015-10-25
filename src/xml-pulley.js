@@ -124,7 +124,7 @@ export function makePulley(xml, options) {
   return constructPulley(queue, skipWS);
 }
 
-function constructPulley(queue, skipWS) {
+function constructPulley(queue, skipWS, checkoutcb) {
   let self;
   
   let next = skipWS ? () => {
@@ -215,6 +215,15 @@ function constructPulley(queue, skipWS) {
     }, name);
   };
   
+  let _checkoutcb = (queue2) => {
+    queue = queue2;
+    return self;
+  };
+  let checkin = () => constructPulley(queue.slice(), skipWS, _checkoutcb);
+  let checkout = checkoutcb ?
+      () => checkoutcb(queue) :
+      () => { throw Error("Can't check out a pulley that wasn't checked in!"); }
+  
   return self = {
     next,
     peek,
@@ -226,7 +235,9 @@ function constructPulley(queue, skipWS) {
     expectName,
     loop,
     loopTag,
-    skipTag
+    skipTag,
+    checkin,
+    checkout
   };
 }
 
