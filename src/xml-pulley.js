@@ -114,7 +114,7 @@ export function makePulley(xml, options) {
         queue.push(data);
       }
     } else {
-      throw new Error(`${type} isn't an allowed type!`);
+      throw Error(`${type} isn't an allowed type!`);
     }
   });
   parser.write(xml).close();
@@ -244,15 +244,15 @@ function constructPulley(queue, skipWS, checkoutcb) {
 
 export function assertType(node, type, error) {
   if(node === undefined) {
-    throw error || new Error(`Expected ${type}; got end of file!`);
+    throw error || Error(`Expected ${type}; got end of file!`);
   } else if(node.type !== type) {
-    throw error || new Error(`Expected ${type}; got ${node.type}: ${nodeRepr(node)}!`);
+    throw error || Error(`Expected ${type}; got ${node.type}: ${nodeRepr(node)}!`);
   }
 }
 export function assertName(tag, name, error) {
   if(tag.name !== name) {
     throw error ||
-          new Error(`${tag.type} had name ${tag.name} instead of ${name}!`);
+          Error(`${tag.type} had name ${tag.name} instead of ${name}!`);
   }
 }
 
