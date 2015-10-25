@@ -126,6 +126,7 @@ export function makePulley(xml, options) {
 
 function constructPulley(queue, skipWS) {
   let self;
+  
   let next = skipWS ? () => {
     let out;
     while((out = queue.pop()) && out.type === 'wstext') {  }
@@ -137,6 +138,7 @@ function constructPulley(queue, skipWS) {
       if(v.type !== 'wstext') return v;
     }
   } : () => queue[queue.length - 1];
+  
   let nextText = () => {
     let v = queue[queue.length - 1];
     if(v && v.type === 'text') {
@@ -159,6 +161,7 @@ function constructPulley(queue, skipWS) {
       return { type: 'text', text: '', rawText: '' };
     }
   };
+  
   let check = (type, error) => {
     let out = peek();
     assertType(out, type, error);
@@ -171,6 +174,7 @@ function constructPulley(queue, skipWS) {
     assertName(out, name, wrongNameError);
     return out;
   };
+  
   let expect = (type, error) => {
     let out = check(type, error);
     next();
@@ -181,6 +185,7 @@ function constructPulley(queue, skipWS) {
     next();
     return out;
   };
+  
   let loop = (callback, endType) => {
     endType = endType || 'closetag';
     let node;
@@ -198,6 +203,7 @@ function constructPulley(queue, skipWS) {
     expectName(tag.name, 'closetag');
     return tag;
   };
+  
   let skipTag = (name) => {
     return loopTag((pulley) => {
       let tag = pulley.peek();
@@ -208,6 +214,7 @@ function constructPulley(queue, skipWS) {
       }
     }, name);
   };
+  
   return self = {
     next,
     peek,
