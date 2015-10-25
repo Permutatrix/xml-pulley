@@ -127,17 +127,21 @@ export function makePulley(xml, options) {
 function constructPulley(queue, skipWS, checkoutcb) {
   let self;
   
-  let next = skipWS ? () => {
-    let out;
-    while((out = queue.pop()) && out.type === 'wstext') {  }
-    return out;
-  } : () => queue.pop();
-  let peek = skipWS ? () => {
-    for(let i = queue.length - 1; i >= 0; --i) {
-      let v = queue[i];
-      if(v.type !== 'wstext') return v;
-    }
-  } : () => queue[queue.length - 1];
+  let next = skipWS ?
+    () => {
+      let out;
+      while((out = queue.pop()) && out.type === 'wstext') {  }
+      return out;
+    } :
+    () => queue.pop();
+  let peek = skipWS ?
+    () => {
+      for(let i = queue.length - 1; i >= 0; --i) {
+        let v = queue[i];
+        if(v.type !== 'wstext') return v;
+      }
+    } :
+    () => queue[queue.length - 1];
   
   let nextText = () => {
     let v = queue[queue.length - 1];
