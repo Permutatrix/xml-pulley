@@ -221,8 +221,14 @@ function constructPulley(queue, skipWS, checkoutcb) {
   };
   let checkin = () => constructPulley(queue.slice(), skipWS, _checkoutcb);
   let checkout = checkoutcb ?
-      () => checkoutcb(queue) :
-      () => { throw Error("Can't check out a pulley that wasn't checked in!"); }
+    () => {
+      let parent = checkoutcb(queue);
+      queue = [];
+      return parent;
+    } :
+    () => {
+      throw Error("Can't check out a pulley that wasn't checked in!");
+    };
   
   return self = {
     next,
