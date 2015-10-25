@@ -453,6 +453,60 @@ describe("XMLPulley", function() {
       expect(pulley.skipTag()).to.equal(opentag);
     });
   });
+  
+  describe(".checkin()", function() {
+    it("should return a new pulley with its cursor on the same node", function() {
+      var pulley1 = makePulley('<root/>'), pulley2 = pulley1.checkin();
+      expect(pulley1.peek()).to.equal(pulley2.peek());
+    });
+    
+    it("should return a pulley that can be used without affecting the original", function() {
+      var pulley1 = makePulley('<root/>'), pulley2 = pulley1.checkin();
+      expect(pulley2.next()).to.equal(pulley1.peek());
+    });
+    
+    it("should work on pulleys that are already checked-in", function() {
+      var pulley1 = makePulley('<root/>'), pulley2 = pulley1.checkin();
+      pulley2.expectName('root');
+      var pulley3 = pulley2.checkin();
+      expect(pulley3.next()).to.equal(pulley2.peek());
+    });
+  });
+  
+  describe(".checkout()", function() {
+    it("should throw when called on a pulley that wasn't checked in", function() {
+      var pulley = makePulley('<root/>');
+      expect(function() { pulley.checkout(); }).to.throw();
+    });
+    
+    it("should move the original pulley's cursor to that of the checked-in one", function() {
+      var pulley1 = makePulley('<root/>'), pulley2 = pulley1.checkin();
+      pulley2.expectName('root');
+      pulley2.checkout();
+      pulley1.expectName('root', 'closetag');
+    });
+    
+    it("should leave the checked-in pulley's cursor at the end of the file", function() {
+      var pulley1 = makePulley('<root/>'), pulley2 = pulley1.checkin();
+      pulley2.checkout();
+      expect(pulley2.peek()).to.be.undefined;
+    });
+    
+    it("should return the original pulley", function() {
+      var pulley1 = makePulley('<root/>'), pulley2 = pulley1.checkin();
+      expect(pulley2.checkout()).to.equal(pulley1);
+    });
+    
+    it("should move up only one level in a chain of check-ins", function() {
+      var pulley1 = makePulley('<root/>'), pulley2 = pulley1.checkin();
+      pulley2.expectName('root');
+      var pulley3 = pulley2.checkin();
+      pulley3.expectName('root', 'closetag');
+      pulley3.checkout();
+      expect(pulley2.peek()).to.be.undefined;
+      pulley1.expectName('root');
+    });
+  });
 });
 
 describe("Behavior", function() {
