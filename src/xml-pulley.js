@@ -12,15 +12,15 @@ function isAllowedType(type) {
 
 export function makePulley(xml, options) {
   if(!options) options = {};
-  let types = options.types || ['opentag', 'closetag', 'text'];
-  let queue = [];
-  let parser = saxParser(true, {
+  const types = options.types || ['opentag', 'closetag', 'text'];
+  const queue = [];
+  const parser = saxParser(true, {
     xmlns: options.xmlns,
     position: false
   });
-  let skipWS = options.skipWhitespaceOnly;
-  let trim = options.trim, normalize = options.normalize;
-  let textOpts = (t) => {
+  const skipWS = options.skipWhitespaceOnly;
+  const trim = options.trim, normalize = options.normalize;
+  const textOpts = (t) => {
     if(trim)
       t = t.trim();
     if(normalize)
@@ -28,7 +28,7 @@ export function makePulley(xml, options) {
     return t;
   };
   let text = null, rawText = null, wsText = null, wsRawText = null;
-  let flushText = () => {
+  const flushText = () => {
     if(skipWS && wsText !== null) {
       queue.push({
         type: 'wstext',
@@ -53,7 +53,7 @@ export function makePulley(xml, options) {
   types.forEach((type) => {
     if(type === 'text') {
       parser.ontext = (t) => {
-        let pt = textOpts(t);
+        const pt = textOpts(t);
         if(skipWS) {
           if(wsText) {
             wsText += pt; wsRawText += t;
@@ -127,24 +127,24 @@ export function makePulley(xml, options) {
 function constructPulley(queue, skipWS, checkoutcb) {
   let self;
   
-  let next = skipWS ?
+  const next = skipWS ?
     () => {
       let out;
       while((out = queue.pop()) && out.type === 'wstext') {  }
       return out;
     } :
     () => queue.pop();
-  let peek = skipWS ?
+  const peek = skipWS ?
     () => {
       for(let i = queue.length - 1; i >= 0; --i) {
-        let v = queue[i];
+        const v = queue[i];
         if(v.type !== 'wstext') return v;
       }
     } :
     () => queue[queue.length - 1];
   
-  let nextText = () => {
-    let v = queue[queue.length - 1];
+  const nextText = () => {
+    const v = queue[queue.length - 1];
     if(v && v.type === 'text') {
       return queue.pop();
     } else if(v && v.type === 'wstext') {
@@ -155,8 +155,8 @@ function constructPulley(queue, skipWS, checkoutcb) {
       return { type: 'text', text: '', rawText: '' };
     }
   };
-  let peekText = () => {
-    let v = queue[queue.length - 1];
+  const peekText = () => {
+    const v = queue[queue.length - 1];
     if(v && v.type === 'text') {
       return v;
     } else if(v && v.type === 'wstext') {
@@ -166,31 +166,31 @@ function constructPulley(queue, skipWS, checkoutcb) {
     }
   };
   
-  let check = (type, error) => {
-    let out = peek();
+  const check = (type, error) => {
+    const out = peek();
     assertType(out, type, error);
     return out;
   };
-  let checkName = (name, type, wrongNameError, wrongTypeError) => {
+  const checkName = (name, type, wrongNameError, wrongTypeError) => {
     type = type || 'opentag';
-    let out = peek();
+    const out = peek();
     assertType(out, type, wrongTypeError || wrongNameError);
     assertName(out, name, wrongNameError);
     return out;
   };
   
-  let expect = (type, error) => {
-    let out = check(type, error);
+  const expect = (type, error) => {
+    const out = check(type, error);
     next();
     return out;
   };
-  let expectName = (name, type, wrongNameError, wrongTypeError) => {
-    let out = checkName(name, type, wrongNameError, wrongTypeError);
+  const expectName = (name, type, wrongNameError, wrongTypeError) => {
+    const out = checkName(name, type, wrongNameError, wrongTypeError);
     next();
     return out;
   };
   
-  let loop = (callback, endType) => {
+  const loop = (callback, endType) => {
     endType = endType || 'closetag';
     let node;
     while((node = peek()) && node.type !== endType) {
@@ -198,8 +198,8 @@ function constructPulley(queue, skipWS, checkoutcb) {
         break;
     }
   };
-  let loopTag = (callback, name) => {
-    let tag = name ? expectName(name) : expect('opentag');
+  const loopTag = (callback, name) => {
+    const tag = name ? expectName(name) : expect('opentag');
     let node;
     while((node = peek()) && node.type !== 'closetag') {
       callback(self, tag);
@@ -208,9 +208,9 @@ function constructPulley(queue, skipWS, checkoutcb) {
     return tag;
   };
   
-  let skipTag = (name) => {
+  const skipTag = (name) => {
     return loopTag((pulley) => {
-      let tag = pulley.peek();
+      const tag = pulley.peek();
       if(tag.type === 'opentag') {
         pulley.skipTag(tag.name);
       } else {
@@ -219,14 +219,14 @@ function constructPulley(queue, skipWS, checkoutcb) {
     }, name);
   };
   
-  let _checkoutcb = (queue2) => {
+  const _checkoutcb = (queue2) => {
     queue = queue2;
     return self;
   };
-  let checkin = () => constructPulley(queue.slice(), skipWS, _checkoutcb);
-  let checkout = checkoutcb ?
+  const checkin = () => constructPulley(queue.slice(), skipWS, _checkoutcb);
+  const checkout = checkoutcb ?
     () => {
-      let parent = checkoutcb(queue);
+      const parent = checkoutcb(queue);
       queue = [];
       return parent;
     } :
