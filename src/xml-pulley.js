@@ -26,6 +26,17 @@ function clone(node) {
 export function makePulley(xml, options) {
   if(!options) options = {};
   const types = options.types || ['opentag', 'closetag', 'text'];
+  const opentag = options.opentag || (function() {
+    for(let i = 0; i < types.length; ++i) {
+      if(types[i] === 'opentagstart') {
+        return 'opentagstart';
+      }
+      return 'opentag';
+    }
+  })();
+  if(opentag !== 'opentag' && opentag !== 'opentagstart') {
+    throw Error(`options.opentag must be an opening tag type, not ${opentag}!`);
+  }
   const queue = [];
   const parser = saxParser(true, {
     xmlns: options.xmlns,
@@ -134,10 +145,10 @@ export function makePulley(xml, options) {
   flushText();
   queue.reverse();
   
-  return constructPulley(queue, skipWS);
+  return constructPulley(queue, skipWS, opentag);
 }
 
-function constructPulley(queue, skipWS, checkoutcb) {
+function constructPulley(queue, skipWS, opentag, checkoutcb) {
   let self;
   
   const next = skipWS ?
@@ -185,7 +196,7 @@ function constructPulley(queue, skipWS, checkoutcb) {
     return out;
   };
   const checkName = (name, type, wrongNameError, wrongTypeError) => {
-    type = type || 'opentag';
+    type = type || opentag;
     const out = peek();
     assertType(out, type, wrongTypeError || wrongNameError);
     assertName(out, name, wrongNameError);
@@ -212,7 +223,7 @@ function constructPulley(queue, skipWS, checkoutcb) {
     }
   };
   const loopTag = (callback, name) => {
-    const tag = name ? expectName(name) : expect('opentag');
+    const tag = name ? expectName(name) : expect(opentag);
     let node;
     while((node = peek()) && node.type !== 'closetag') {
       callback(self, tag);
@@ -224,7 +235,7 @@ function constructPulley(queue, skipWS, checkoutcb) {
   const skipTag = (name) => {
     return loopTag((pulley) => {
       const tag = pulley.peek();
-      if(tag.type === 'opentag') {
+      if(tag.type === opentag) {
         pulley.skipTag(tag.name);
       } else {
         pulley.next();
@@ -236,7 +247,7 @@ function constructPulley(queue, skipWS, checkoutcb) {
     queue = queue2;
     return self;
   };
-  const checkin = () => constructPulley(queue.slice(), skipWS, _checkoutcb);
+  const checkin = () => constructPulley(queue.slice(), skipWS, opentag, _checkoutcb);
   const checkout = checkoutcb ?
     () => {
       const parent = checkoutcb(queue);
