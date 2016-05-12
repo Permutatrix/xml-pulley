@@ -94,6 +94,24 @@ describe("XMLPulley", function() {
       expect(pulley.expect('closetag')).to.have.property('name', 'root');
       expect(pulley.next()).to.be.undefined;
     });
+    
+    it("should handle opentagstart and attribute", function() {
+      var pulley = makePulley('<root><tag a="value" b="data"/></root>', {types: ['opentagstart', 'opentag', 'attribute', 'closetag']});
+      expect(pulley.expect('opentagstart')).to.have.property('name', 'root');
+      expect(pulley.expect('opentag')).to.have.property('name', 'root');
+      var tagstart = pulley.expect('opentagstart');
+      expect(tagstart).to.have.property('name', 'tag');
+      expect(tagstart).to.have.property('attributes').that.deep.equals({});
+      var a = pulley.expect('attribute');
+      expect(a).to.have.property('name', 'a');
+      expect(a).to.have.property('value', 'value');
+      var b = pulley.expect('attribute');
+      expect(b).to.have.property('name', 'b');
+      expect(b).to.have.property('value', 'data');
+      var tag = pulley.expect('opentag');
+      expect(tag).to.have.property('name', 'tag');
+      expect(tag).to.have.property('attributes').that.deep.equals({ a: 'value', b: 'data' });
+    });
   });
   
   describe(".peek()", function() {

@@ -5,9 +5,22 @@ function isAllowedType(type) {
     case 'text': case 'opentag': case 'closetag': case 'doctype':
     case 'processinginstruction': case 'attribute': case 'comment':
     case 'opencdata': case 'closecdata': case 'opennamespace':
-    case 'closenamespace': return true;
+    case 'closenamespace': case 'opentagstart': return true;
     default: return false;
   }
+}
+
+function clone(node) {
+  const out = {};
+  for(let key in node) {
+    const value = node[key];
+    if(typeof value === 'object') {
+      out[key] = clone(value);
+    } else {
+      out[key] = value;
+    }
+  }
+  return out;
 }
 
 export function makePulley(xml, options) {
@@ -110,6 +123,7 @@ export function makePulley(xml, options) {
     } else if(isAllowedType(type)) {
       parser['on'+type] = (data) => {
         flushText();
+        data = clone(data);
         data.type = type;
         queue.push(data);
       }
@@ -269,7 +283,7 @@ export function assertName(tag, name, error) {
 export function nodeRepr(tag) {
   switch(tag.type) {
     case 'text': case 'comment': return `"${tag.text}"`;
-    case 'opentag': return `<${tag.name}>`;
+    case 'opentag': case 'opentagstart': return `<${tag.name}>`;
     case 'closetag': return `</${tag.name}>`;
     case 'doctype': return `<!${tag.text}>`;
     case 'processinginstruction': return `<?${tag.name} ${tag.body}?>`;

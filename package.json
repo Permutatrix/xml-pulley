@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/permutatrix/xml-pulley#readme",
   "dependencies": {
-    "sax": "^1.1.4"
+    "sax": "^1.2.1"
   },
   "devDependencies": {
     "chai": "^3.3.0",
