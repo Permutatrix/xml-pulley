@@ -1,6 +1,6 @@
 {
   "name": "xml-pulley",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "a sort of reverse-SAX XML parser",
   "main": "lib/xml-pulley.js",
   "jsnext:main": "src/xml-pulley.js",
