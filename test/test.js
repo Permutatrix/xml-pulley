@@ -94,24 +94,6 @@ describe("XMLPulley", function() {
       expect(pulley.expect('closetag')).to.have.property('name', 'root');
       expect(pulley.next()).to.be.undefined;
     });
-    
-    it("should handle opentagstart and attribute", function() {
-      var pulley = makePulley('<root><tag a="value" b="data"/></root>', {types: ['opentagstart', 'opentag', 'attribute', 'closetag']});
-      expect(pulley.expect('opentagstart')).to.have.property('name', 'root');
-      expect(pulley.expect('opentag')).to.have.property('name', 'root');
-      var tagstart = pulley.expect('opentagstart');
-      expect(tagstart).to.have.property('name', 'tag');
-      expect(tagstart).to.have.property('attributes').that.deep.equals({});
-      var a = pulley.expect('attribute');
-      expect(a).to.have.property('name', 'a');
-      expect(a).to.have.property('value', 'value');
-      var b = pulley.expect('attribute');
-      expect(b).to.have.property('name', 'b');
-      expect(b).to.have.property('value', 'data');
-      var tag = pulley.expect('opentag');
-      expect(tag).to.have.property('name', 'tag');
-      expect(tag).to.have.property('attributes').that.deep.equals({ a: 'value', b: 'data' });
-    });
   });
   
   describe(".peek()", function() {
@@ -637,6 +619,38 @@ describe("Behavior", function() {
     it("should not provide namespace info by default", function() {
       var pulley = makePulley('<svg xmlns="http://www.w3.org/2000/svg"></svg>');
       expect(pulley.expect('opentag')).to.not.have.property('ns');
+    });
+  });
+  
+  describe("Event types", function() {
+    it("should handle opentagstart and attribute", function() {
+      var pulley = makePulley('<root><tag a="value" b="data"/></root>', {types: ['opentagstart', 'opentag', 'attribute', 'closetag']});
+      expect(pulley.expect('opentagstart')).to.have.property('name', 'root');
+      expect(pulley.expect('opentag')).to.have.property('name', 'root');
+      var tagstart = pulley.expect('opentagstart');
+      expect(tagstart).to.have.property('name', 'tag');
+      expect(tagstart).to.have.property('attributes').that.deep.equals({});
+      var a = pulley.expect('attribute');
+      expect(a).to.have.property('name', 'a');
+      expect(a).to.have.property('value', 'value');
+      var b = pulley.expect('attribute');
+      expect(b).to.have.property('name', 'b');
+      expect(b).to.have.property('value', 'data');
+      var tag = pulley.expect('opentag');
+      expect(tag).to.have.property('name', 'tag');
+      expect(tag).to.have.property('attributes').that.deep.equals({ a: 'value', b: 'data' });
+    });
+    
+    it("should handle opennamespace and closenamespace", function() {
+      var pulley = makePulley('<root xmlns:foo="http://example.com/a">A<tag xmlns:foo="http://example.com/b" xmlns:bar="http://example.com/a">B</tag>C</root>', {types: ['opennamespace', 'text', 'closenamespace'], xmlns: true});
+      expect(pulley.expect('opennamespace')).to.deep.equal({ type: 'opennamespace', prefix: 'foo', uri: 'http://example.com/a' });
+      expect(pulley.expect('text')).to.have.property('text', 'A');
+      expect(pulley.expect('opennamespace')).to.deep.equal({ type: 'opennamespace', prefix: 'foo', uri: 'http://example.com/b' });
+      expect(pulley.expect('opennamespace')).to.deep.equal({ type: 'opennamespace', prefix: 'bar', uri: 'http://example.com/a' });
+      expect(pulley.expect('text')).to.have.property('text', 'B');
+      expect(pulley.expect('closenamespace')).to.deep.equal({ type: 'closenamespace', prefix: 'foo', uri: 'http://example.com/b' });
+      expect(pulley.expect('closenamespace')).to.deep.equal({ type: 'closenamespace', prefix: 'bar', uri: 'http://example.com/a' });
+      expect(pulley.expect('text')).to.have.property('text', 'C');
     });
   });
   

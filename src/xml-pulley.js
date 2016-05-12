@@ -114,8 +114,7 @@ export function makePulley(xml, options) {
           name: t
         });
       }
-    } else if(type === 'opencdata' || type === 'closecdata' ||
-              type === 'opennamespace' || type === 'closenamespace') {
+    } else if(type === 'opencdata' || type === 'closecdata') {
       parser['on'+type] = (data) => {
         flushText();
         queue.push({ type: type });
