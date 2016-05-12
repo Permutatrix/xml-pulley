@@ -2,6 +2,7 @@ var expect = require('chai').expect;
 var xmlPulley = require('../lib/xml-pulley.js');
 var makePulley = xmlPulley.makePulley;
 
+
 describe("makePulley()", function() {
   it("should throw when passed an invalid type", function() {
     expect(function() { makePulley('', {types: ['text', 'error']}) }).to.throw();
