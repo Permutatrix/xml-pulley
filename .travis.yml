@@ -8,6 +8,6 @@ node_js:
   - '6'
 before_script:
   - npm install -g gulp
-script: gulp && npm test
+script: gulp with-sourcemap && npm test
 after_success:
   - npm run coverage

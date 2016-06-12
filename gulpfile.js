@@ -6,3 +6,9 @@ gulp.task('default', function() {
   .pipe(babel({loose: 'all'}))
   .pipe(gulp.dest('lib'));
 });
+
+gulp.task('with-sourcemap', function() {
+  return gulp.src('src/**/*.js')
+  .pipe(babel({loose: 'all', sourceMaps: 'inline'}))
+  .pipe(gulp.dest('lib'));
+});
