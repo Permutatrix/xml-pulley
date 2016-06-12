@@ -4,14 +4,14 @@ var sourcemaps = require('gulp-sourcemaps');
 
 gulp.task('default', function() {
   return gulp.src('src/**/*.js')
-  .pipe(babel({ presets: ['es2015-loose'] }))
+  .pipe(babel({ presets: ['es2015-minimal'] }))
   .pipe(gulp.dest('lib'));
 });
 
 gulp.task('with-sourcemap', function() {
   return gulp.src('src/**/*.js')
   .pipe(sourcemaps.init())
-    .pipe(babel({ presets: ['es2015-loose'] }))
+    .pipe(babel({ presets: ['es2015-minimal'] }))
   .pipe(sourcemaps.write({ sourceRoot: '../src' }))
   .pipe(gulp.dest('lib'));
 });
