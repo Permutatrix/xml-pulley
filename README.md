@@ -1,4 +1,4 @@
-# xml-pulley [![npm][npm-image]][npm-url] [![Dependency Status][david-image]][david-url] [![Build Status][travis-image]][travis-url]
+# xml-pulley [![npm][npm-image]][npm-url] [![Dependency Status][david-image]][david-url] [![Build Status][travis-image]][travis-url] [![Code Coverage][codecov-image]][codecov-url]
 
 This is a simple parser for XML&mdash;actually just a relatively thin wrapper
 around [sax-js]. It's designed for and tested on [node], but it should work on
@@ -20,6 +20,8 @@ you like; those were boring enough to write on their own. The wiki also has
 [a simple example] of how xml-pulley might be used.
 
 
+[codecov-url]: https://codecov.io/gh/Permutatrix/xml-pulley
+[codecov-image]: https://img.shields.io/codecov/c/github/Permutatrix/xml-pulley/master.svg
 [travis-url]: https://travis-ci.org/Permutatrix/xml-pulley
 [travis-image]: https://img.shields.io/travis/Permutatrix/xml-pulley/master.svg
 [david-url]:   https://david-dm.org/Permutatrix/xml-pulley
