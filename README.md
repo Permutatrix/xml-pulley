@@ -15,7 +15,7 @@ which _pushes_ data onto you, or DOM, which _stores_ data for you. And also
 because I couldn't think of anything better to call it in the several seconds I
 gave myself to think of a name.
 
-There's no proper documentation at the moment. Have a look at [the 84 tests] if
+There's no proper documentation at the moment. Have a look at [the 90 tests] if
 you like; those were boring enough to write on their own. The wiki also has
 [a simple example] of how xml-pulley might be used.
 
@@ -30,5 +30,5 @@ you like; those were boring enough to write on their own. The wiki also has
 [sax-js]: https://www.npmjs.com/package/sax
 [node]: https://nodejs.org/
 [Browserify]: http://browserify.org/
-[the 84 tests]: https://github.com/Permutatrix/xml-pulley/blob/master/test/test.js
+[the 90 tests]: https://github.com/Permutatrix/xml-pulley/blob/master/test/test.js
 [a simple example]: https://github.com/Permutatrix/xml-pulley/wiki/Example
