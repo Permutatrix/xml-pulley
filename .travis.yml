@@ -10,4 +10,4 @@ before_script:
   - npm install -g gulp
 script: gulp && npm test
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - npm run coverage

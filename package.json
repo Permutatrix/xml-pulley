@@ -5,7 +5,8 @@
   "main": "lib/xml-pulley.js",
   "jsnext:main": "src/xml-pulley.js",
   "scripts": {
-    "test": "mocha",
+    "test": "nyc mocha",
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "prepublish": "gulp"
   },
   "repository": {
@@ -26,8 +27,10 @@
   },
   "devDependencies": {
     "chai": "^3.3.0",
+    "codecov": "^1.0.1",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.2.1",
-    "mocha": "^2.3.3"
+    "mocha": "^2.3.3",
+    "nyc": "^6.4.4"
   }
 }
