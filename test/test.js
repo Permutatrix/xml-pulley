@@ -126,6 +126,19 @@ describe("XMLPulley", function() {
       expect(pulley.nextText()).to.have.property('text', '\n');
     });
     
+    it("should handle non-whitespace text normally with skipWhitespaceOnly", function() {
+      var pulley = makePulley('<text>text</text>', {skipWhitespaceOnly: true});
+      pulley.expectName('text');
+      expect(pulley.nextText()).to.have.property('text', 'text');
+      expect(pulley.nextText()).to.have.property('text', '');
+      pulley.expectName('text', 'closetag');
+    });
+    
+    it("should allow whitespace-only text to be collapsed", function() {
+      var pulley = makePulley('<text>  <a>\n</a>  </text>', {types: ['text'], skipWhitespaceOnly: true});
+      expect(pulley.nextText()).to.have.property('text', '  \n  ');
+    });
+    
     it("should return an empty text node when there's no text to read", function() {
       var pulley = makePulley('<notext></notext>');
       pulley.expectName('notext');
@@ -522,6 +535,15 @@ describe("Behavior", function() {
       var pulley = makePulley('<dhsb><bad-horse>Bad Horse,</bad-horse> Bad Horse!</dhsb>', {types: ['text']});
       expect(pulley.expect('text')).to.have.property('text', 'Bad Horse, Bad Horse!');
     });
+    
+    it("should not collapse text across boundaries of matched types", function() {
+      var pulley = makePulley('<themesong>We<![CDATA[     ]]>are the crystal gems!</themesong>', {types: ['text', 'opencdata', 'closecdata']});
+      expect(pulley.expect('text')).to.have.property('text', 'We');
+      expect(pulley.expect('opencdata'));
+      expect(pulley.expect('text')).to.have.property('text', '     ');
+      expect(pulley.expect('closecdata'));
+      expect(pulley.expect('text')).to.have.property('text', 'are the crystal gems!');
+    });
   });
   
   describe("Trimming", function() {
@@ -567,6 +589,17 @@ describe("Behavior", function() {
       var pulley = makePulley('<root>  Text  </root>', {skipWhitespaceOnly: true});
       pulley.expect('opentag');
       expect(pulley.expect('text')).to.have.property('text', '  Text  ');
+    });
+    
+    it("should skip multiple whitespace-only nodes in a row", function() {
+      var pulley = makePulley('<root>  <a>\n</a>  </root>', {types: ['text'], skipWhitespaceOnly: true});
+      expect(pulley.next()).to.be.undefined;
+    });
+    
+    it("should not skip whitespace-only CDATA", function() {
+      var pulley = makePulley('<root><![CDATA[   ]]></root>', {skipWhitespaceOnly: true});
+      pulley.expect('opentag');
+      expect(pulley.expect('text')).to.have.property('text', '   ');
     });
   });
   
@@ -651,6 +684,11 @@ describe("Behavior", function() {
       expect(pulley.expect('closenamespace')).to.deep.equal({ type: 'closenamespace', prefix: 'foo', uri: 'http://example.com/b' });
       expect(pulley.expect('closenamespace')).to.deep.equal({ type: 'closenamespace', prefix: 'bar', uri: 'http://example.com/a' });
       expect(pulley.expect('text')).to.have.property('text', 'C');
+    });
+    
+    it("should handle doctype", function() {
+      var pulley = makePulley('<!DOCTYPE html><html/>', {types: ['doctype']});
+      expect(pulley.expect('doctype')).have.property('text', ' html');
     });
   });
   
